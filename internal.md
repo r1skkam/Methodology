@@ -154,7 +154,7 @@ List users with "Store passwords using reversible encryption" enabled
 Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
 ```
 
-<img src="./images/store-password-using-reversible-encryption.png" width="500"/>
+<img src="./images/store-password-using-reversible-encryption.png" width="250"/>
 
 ## Data-Exfiltration
 Data exfiltration and DLP (Data Loss Prevention) bypass.
