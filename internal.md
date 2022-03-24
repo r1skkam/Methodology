@@ -153,6 +153,9 @@ List users with "Store passwords using reversible encryption" enabled
 ```
 Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
 ```
+--> list of user account control flag :   
+- https://docs.microsoft.com/en-us/windows/win32/adschema/a-useraccountcontrol
+- http://www.selfadsi.org/ads-attributes/user-userAccountControl.htm
 
 <img src="./images/store-password-using-reversible-encryption.png" width="250"/>
 
