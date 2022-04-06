@@ -10,7 +10,15 @@ Using crackmapexec to test for password equal to username on domain contoso.com
 for word in $(cat users.txt); do crackmapexec smb 10.10.0.10 -u $word -p $word -d contoso.com; done
 ```
 
-### Checking NLA
+### Checking NLA and other RDP issue
+rdp-sec-check is a Perl script to enumerate the different security settings of an remote destktop service (AKA Terminal Services)
+- https://github.com/CiscoCXSecurity/rdp-sec-check
+
+```
+sudo cpan
+cpan[1]> install Encoding::BER
+rdp-sec-check.pl 10.0.0.93
+```
 
 ### RPC / SMB null enumeration
 ```
@@ -108,7 +116,12 @@ crackmapexec smb rangeIP.txt -u jdoe -p Pass1234 -d company.com -M spooler | gre
 - https://github.com/InfosecMatter/Minimalistic-offensive-security-tools/blob/master/localbrute.ps1 (a améliorer)
 
 ### Pywerview recon tool
+PowerView's functionalities in Python, using the wonderful impacket library.
+- https://github.com/the-useless-one/pywerview
 
+```
+python pywerview.py get-netuser -w company.local -u jdoe --dc-ip 192.168.0.10 --username jdoe
+```
 
 ### Expanding BloodHound
 - https://github.com/hausec/Bloodhound-Custom-Queries
@@ -119,11 +132,51 @@ crackmapexec smb rangeIP.txt -u jdoe -p Pass1234 -d company.com -M spooler | gre
 
 # Exploitation
 
-### Exploiting GPO
+### Password spray
+- https://github.com/Greenwolf/Spray/blob/master/spray.sh
+
+Spraying 3 password attempt for each user every 15 minutes without attempting password=username  
+```
+spray.sh -smb 192.168.0.10 users.txt seasons.txt 3 15 cema.canadaegg.ca NOUSERUSER
+```
+
+- https://github.com/ShutdownRepo/smartbrute
+
+
+### Exploiting ACL over GPO
 - https://github.com/Group3r/Group3rhttps://github.com/Group3r/Group3r
 
 ### GPP / GPO passwords
 
+### LLMNR / NBT-NS / mDNS
+> Microsoft systems use Link-Local Multicast Name Resolution (LLMNR) and the NetBIOS Name Service (NBT-NS) for local host resolution when DNS lookups fail. Apple Bonjour and Linux zero-configuration implementations use Multicast DNS (mDNS) to discover systems within a network. 
+
+### WPAD
+Many browsers use Web Proxy Auto-Discovery (WPAD) to load proxy settings from the network, download the wpad.dat, Proxy Auto-Config (PAC) file.
+
+A WPAD server provides client proxy settings via a particular URL:
+- http://wpad.example.org/wpad.dat
+
+--> When a machine has these protocols enabled, if the local network DNS is not able to resolve the name, the machine will ask to all hosts of the network.
+
+Using Responder we can poison DNS, DHCP, LLMNR and NBT-NS traffic to redirect clients to a malicious WPAD Server.
+```
+responder -I eth0 -wFb
+```
+
+--> Backdooring using Responder and WPAD attack
+Modify Responder configuration file
+```
+; Set to On to serve the custom HTML if the URL does not contain .exe
+; Set to Off to inject the 'HTMLToInject' in web pages instead
+Serve-Html = On 
+```
+
+--> Create a specific web page for error or use the default one. 
+
+--> Create an implant to be downloaded by the client. By default the error message indicate this URL : ```http://isaProxysrv/ProxyClient.exe```
+
+### WSUS
 
 ### Protected Process
 - https://itm4n.github.io/lsass-runasppl/
@@ -276,6 +329,9 @@ Kerberos SessionError: KRB_AP_ERR_SKEW(Clock skew too great)
 - https://posts.specterops.io/a-case-study-in-wagging-the-dog-computer-takeover-2bcb7f94c783
 - https://shenaniganslabs.io/2019/01/28/Wagging-the-Dog.html
 
+### From On-Premise to Azure
+- MSOL account
+- AzureAD Connect
 
 # Persistence
 
@@ -487,6 +543,7 @@ https://blog.alsid.eu/primary-group-id-attack-a50dca142771
 - checker for internal OWA, Exchange vuln
 - Exchange vuln privexchange.py
 - PAC
+- Skeleton key
 - Sam Account Name spoofing
 - LAPS and LAPS bypass
 https://www.praetorian.com/blog/obtaining-laps-passwords-through-ldap-relaying-attacks/
@@ -502,8 +559,6 @@ https://www.ravenswoodtechnology.com/protect-your-windows-network-from-the-petit
 - ADCS
 https://ppn.snovvcrash.rocks/pentest/infrastructure/ad/ad-cs-abuse#domain-escalation-via-certificates
 https://github.com/ly4k/Certipy
-- WPAD
-- LLMNR NbtNS mDNS
 - adsecurity all
 - anonymous RPC/SMB
 - Wdigest
@@ -511,7 +566,6 @@ https://github.com/ly4k/Certipy
 - LSASS
 - DPAPI
 - reprendre training specterops
-- NLA
 - Service accounts with interactive logon
 - WSUS exploitation
 - Permissive Active Directory Domain Services https://blog.netspi.com/exploiting-adidns/
@@ -526,7 +580,7 @@ https://www.thehacker.recipes/physical/networking/network-access-control
 - SMTP
 - ACL/DACL exploitation
 - Owner https://bloodhound.readthedocs.io/en/latest/data-analysis/edges.html#owns
-- Quick wins (RMI, tomcat,...)
+- Quick wins (RMI, tomcat,...) nmap scan identifying these ports
 - password stored in LSA
 VDocumentation about LSA secrets:
           https://www.passcape.com/index.php?section=docsys&cmd=details&id=23
