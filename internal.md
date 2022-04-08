@@ -320,6 +320,8 @@ Kerberos SessionError: KRB_AP_ERR_SKEW(Clock skew too great)
 ### Pass The ticket
 - https://book.hacktricks.xyz/windows/active-directory-methodology/pass-the-ticket
 
+
+
 ### Silver ticket
 - https://adsecurity.org/?p=2011
 - https://pentestlab.blog/2022/01/17/domain-persistence-machine-account/
@@ -571,7 +573,11 @@ https://github.com/ly4k/Certipy
 - Permissive Active Directory Domain Services https://blog.netspi.com/exploiting-adidns/
 - DHCP spoofing
 - ARP spoofing
+- lateral movement (wmiexec, smbexec, psexec) and what do they do on te targeted system side
+- smb enumeration (smbmap, smbclient)
 - MITM6
+- Pypykatz
+- Spraykatz
 - NAC bypass
 https://www.thehacker.recipes/physical/networking/network-access-control
 - VLAN hopping
