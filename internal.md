@@ -340,6 +340,9 @@ Kerberos SessionError: KRB_AP_ERR_SKEW(Clock skew too great)
 
 # Persistence
 
+####  Persistence in AD environment
+- https://padlet.com/sylvaincortes/5ih32mx9f637sk1a
+
 #### Machine/Computer accounts
 - https://adsecurity.org/?p=2753
 
