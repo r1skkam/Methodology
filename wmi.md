@@ -11,6 +11,7 @@
 <img src="./images/wmi-architecture.png" width="500"/>
 
 ## WMI Components
+https://0xinfection.github.io/posts/wmi-classes-methods-part-2/
 
 ### Manaed Object Format (MOF) files
 Use to define WMI namespaces, classes, provides etc...  
@@ -184,4 +185,113 @@ Get-WmiObject -Class "Win32_Process" -ComputerName "." | where {($_.name -eq 'po
 
 Get-WmiObject -Class Win32_NTEventLogFile -ComputerName $strComputer | Where-Object {$_.LogFileName -eq 'security'}
 
-Path to executables for running services
+Path to executables for running services and user runnning services
+```
+Get-WmiObject -Class Win32_Service | select Name, StartName, PathName
+```
+
+Remove WMI objects:  
+WMI returns *live*, *editable*, objects so you can for exemple kill a process using WMI.
+```
+Get-WmiObject -Class Win32_Process | Where-Object {$_.Name -eq "notepad.exe"} | Remove-WmiObject 
+```
+
+Searching for file recursively
+```
+function get-wmifile {
+[CmdletBinding()]
+param (
+ [Parameter(Mandatory = $true)]
+ [string]$path,
+ [string]$file
+)
+
+if ($path.IndexOf('\\') -le 0 ){
+  $path = $path.replace('\', '\\')
+}
+
+if ($path.IndexOf('*') -ge 0 ){
+  $path = $path.replace('*', '%')
+}
+
+Write-Verbose -Message "Path to search: $path"
+
+$folders = Get-CimInstance -ClassName Win32_Directory -Filter "Name LIKE '$path'"
+foreach ($folder in $folders){
+ if ($file) {
+   Get-CimAssociatedInstance -InputObject $folder -ResultClassName CIM_DataFile |
+   where Name -Like "*$file" |
+   Select Name
+ }
+ else {
+   Get-CimAssociatedInstance -InputObject $folder -ResultClassName CIM_DataFile |
+   Select Name
+ }
+}
+
+}
+```
+
+```
+. ./get-wmifile.ps1
+get-wmifile -path 'c:\Windows' -file 'unattend.xml'
+```
+
+Get owner of a specific process
+```
+Get-WmiObject Win32_Process -Filter "name='calculator.exe'" | Select Name, @{Name="UserName"; Expression={$_.GetOwner().Domain+"\"+$_.GetOwner().User}} | Sort-Object UserName, Name
+```
+
+Get owner for all process
+```
+Get-WmiObject Win32_Process | Select Name, @{Name="UserName"; Expression={$_.GetOwner().Domain+"\"+$_.GetOwner().User}} | Sort-Object UserName, Name
+```
+
+## WMI Methods
+List all methods within *ROOT\CIMV2*  NameSpace
+```
+Get-WmiObject * -List | where-object {$_.Methods}
+Get-CimClass -MethodName Create*
+```
+
+List all methods within by default *ROOT\CIMV2* NameSpace in specific class
+```
+Get-WmiObject -Class Win32_process -List | select -ExpandProperty Methods
+```
+
+List parameters for specific method *Create* within the *Win32_Proces* within *ROOT\Cimv2* NameSpace
+```
+Get-CimClass -Class Win32_process | select -ExpandProperty CimClassMethods | where name -eq "Create" | select -ExpandProperty Parameters
+```
+
+Invoke the previously enumerated method *Create* from *Win32_Process* class with *calc.exe* argument as parameter to pop up calc.exe process.
+```
+Invoke-WmiMethod -Class Win32_Process -Name create -ArgumentList calc.exe
+```
+
+## Association classes
+https://raw.githubusercontent.com/dfinke/images/master/acn.png
+
+Association classes are relationship between WMI classes which can be used to retrieve information about a managed object which is not available from a single class.
+
+*__RELPATH* property of a WMI class can be used as key to list relationships of this class.
+```
+Get-wmiobject -class win32_networkadapter | select __RELPATH
+Get-WmiObject -Query "Associators Of {Win32_NetworkAdapter.DeviceID=10} where ClassDefsOnly"
+ ```
+
+## WMI Console (WMIC)
+<img src="./images/wmic_verbs.png" width="500"/>
+
+
+## Registry key manipulation
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/wmi-tasks--registry
+
+WMI provides a class called StdRegProv for interacting with the Windows Registry.  
+--> An important point to note here is that we need to use the root\DEFAULT namespace for working with the registry
+ 
+```
+
+```
+
+using WMI you can set or remove registry key using *Set-WmiObject* and *Remove-WmiObject*.

@@ -612,6 +612,7 @@ Data exfiltration and DLP (Data Loss Prevention) bypass.
 
 
 To use for the course
+- https://github.com/jwardsmith/Active-Directory-Exploitation
 - https://www.infosecmatter.com/top-16-active-directory-vulnerabilities/
 - https://github.com/infosecn1nja/AD-Attack-Defense
 - https://h4ms1k.github.io/Red_Team_Active_Directory/#
