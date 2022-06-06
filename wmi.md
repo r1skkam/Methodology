@@ -385,8 +385,41 @@ Enumerating HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion
 ```
 Invoke-WmiMethod -Namespace root\default -Class stdregprov -Name EnumKey @(2147483650, "software\microsoft\windows nt\currentversion") | select -ExpandProperty snames, svalues
 ```
+Reading values: Read subkey value *aux* under *DRIVER32* key from HKLM Hive
+```
+Invoke-WmiMethod -Namespace root\default -Class stdregprov -Name GetStringValue @(2147483650, "software\microsoft\windows nt\currentversion\drivers32", "aux")
+```
 
-Using WMI you can set or remove registry key using *Set-WmiObject* and *Remove-WmiObject*.
+Using WMI you can set or remove registry key using some methods, but you need to use specific constant as for querying the Registry and validate you have rights to modify a specific key.
+
+Validating we have access to a specific registry item. We would need constants defining the access levels to the key.
+
+| Method   |      Value      |         Function         |
+|------------|:---------------:|---------------------:|
+| KEY_QUERY_VALUE      |    1   |  Query the values of a registry key   |
+| KEY_SET_VALUE      |    2   |  Create, delete, or set a registry value   |
+| KEY_CREATE_SUB_KEY     |    4   |  Create a subkey of a registry key  |
+| KEY_ENUMERATE_SUB_KEYS     |    8   |  Enumerate the subkeys of a registry key          |
+| KEY_NOTIFY     |    16   |  Change notifications for a registry key or for subkeys of a registry key |
+| KEY_CREATE      |    32   |  Create a registry key |
+| DELETE      |    65536   |  Delete a registry key |
+| READ_CONTROL      |    131072   |  Combines the STANDARD_RIGHTS_READ, KEY_QUERY_VALUE, KEY_ENUMERATE_SUB_KEYS and KEY_NOTIFY values |
+| WRITE_DAC    |    262144   |  Modify the DACL in the object’s security descriptor |
+| WRITE_OWNER      |    524288   |  Change the owner in the object’s security descriptor |
+
+You will first need to check the permission for the key you want to modify, in our case 32 to *KEY_CREATE*
+```
+Invoke-WmiMethod -Namespace root\default -Class stdregprov -Name CheckAccess @(2147483649, "software\microsoft\windows\currentversion\run", 32)
+```
+This will return a BGRANTED property within the output: True = Privileges Ok to 32 action (32 = KEY_CREATE)
+
+<img src="./images/bg_granted.png" width="500"/>
+
+Usefull scripts:   
+- [Registy.ps1](https://github.com/darkoperator/Posh-SecMod/blob/master/Registry/Registry.ps1)
+- https://github.com/samratashok/nishang/blob/master/Gather/Get-Information.ps1
+- https://github.com/PowerShellMafia/PowerSploit/blob/master/CodeExecution/Invoke-WmiCommand.ps1
+- https://github.com/EmpireProject/Empire/blob/master/data/module_source/credentials/Invoke-SessionGopher.ps1
 
 # Resources
 - BlackHat US 2015: Abusing WMI to built a persistent, asyncronous, and fileless backdoor.  
