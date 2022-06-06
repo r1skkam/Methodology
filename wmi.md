@@ -383,20 +383,21 @@ Also WMI uses different data type, and each data type can be accessed using a pa
 
 Enumerating HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion
 ```
-Invoke-WmiMethod -Namespace root\default -Class stdregprov -Name EnumKey @(2147483650, "software\microsoft\windows nt\currentversion") | select -ExpandProperty snames
+Invoke-WmiMethod -Namespace root\default -Class stdregprov -Name EnumKey @(2147483650, "software\microsoft\windows nt\currentversion") | select -ExpandProperty snames, svalues
 ```
 
 Using WMI you can set or remove registry key using *Set-WmiObject* and *Remove-WmiObject*.
 
 # Resources
-- BlackHat US 2015: Abusing WMI to built a persistent, asyncronous, and fileless backdoor.https://www.blackhat.com/docs/us-15/materials/us-15-Graeber-Abusing-Windows-Management-Instrumentation-WMI-To-Build-A-Persistent%20Asynchronous-And-Fileless-Backdoor-wp.pdf
+- BlackHat US 2015: Abusing WMI to built a persistent, asyncronous, and fileless backdoor.  
+https://www.blackhat.com/docs/us-15/materials/us-15-Graeber-Abusing-Windows-Management-Instrumentation-WMI-To-Build-A-Persistent%20Asynchronous-And-Fileless-Backdoor-wp.pdf
 
-- WMI for Script Kiddies
+- WMI for Script Kiddies  
 https://www.trustedsec.com/blog/wmi-for-script-kiddies/
 
-- Usefull WMIC queries for host and domain enumeration
+- Usefull WMIC queries for host and domain enumeration  
 https://gist.github.com/xorrior/67ee741af08cb1fc86511047550cdaf4
 
-- Red Team handbook WMI command
+- Red Team handbook WMI command  
 https://kwcsec.gitbook.io/the-red-team-handbook/techniques/enumeration/recon-commands/wmic-commands
 
