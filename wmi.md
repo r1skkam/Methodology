@@ -370,6 +370,22 @@ WMI uses constant numeric values to identify different hives in the registry.
 | $HKUS      |    2147483651   |  HKEY_USERS          |
 | $HKCC      |    2147483653   |  HKEY_CURRENT_CONFIG |
 
+Also WMI uses different data type, and each data type can be accessed using a particular method in WMI.
+
+| Method   |      Data Type      |         Type value           |   Function    |
+|------------|:---------------:|---------------------:|---------------------:
+| GetStringValue     |    REG_SZ   |  1   | Returns a string |
+| GetExpandedStringValue     |    REG_EXPAND_SZ   |  2   | Returns expanded references to env variables |
+| GetBinaryValue      |    REG_BINARY   |  3  | Returns array of bytes |
+| GetDWORDValue      |    REG_DWORD   |  4          | Returns a 32-bit number |
+| GetMultiStringValue      |    REG_MULTI_SZ   |  7 | Returns multiple string values |
+| GetQWORDValue | REG_QWORD | 11 | Returns a 64-bit number |
+
+Enumerating HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion
+```
+Invoke-WmiMethod -Namespace root\default -Class stdregprov -Name EnumKey @(2147483650, "software\microsoft\windows nt\currentversion") | select -ExpandProperty snames
+```
+
 Using WMI you can set or remove registry key using *Set-WmiObject* and *Remove-WmiObject*.
 
 # Resources
