@@ -417,9 +417,9 @@ This will return a BGRANTED property within the output: True = Privileges Ok to 
 
 Usefull scripts:   
 - [Registy.ps1](https://github.com/darkoperator/Posh-SecMod/blob/master/Registry/Registry.ps1)
-- https://github.com/samratashok/nishang/blob/master/Gather/Get-Information.ps1
-- https://github.com/PowerShellMafia/PowerSploit/blob/master/CodeExecution/Invoke-WmiCommand.ps1
-- https://github.com/EmpireProject/Empire/blob/master/data/module_source/credentials/Invoke-SessionGopher.ps1
+- [Get-Information.ps1](https://github.com/samratashok/nishang/blob/master/Gather/Get-Information.ps1)
+- [Invoke-WmiCommand.ps1](https://github.com/PowerShellMafia/PowerSploit/blob/master/CodeExecution/Invoke-WmiCommand.ps1)
+- [Invoke-SessionGopher.ps1](https://github.com/EmpireProject/Empire/blob/master/data/module_source/credentials/Invoke-SessionGopher.ps1)
 
 # Resources
 - BlackHat US 2015: Abusing WMI to built a persistent, asyncronous, and fileless backdoor.  
