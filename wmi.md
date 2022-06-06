@@ -1,3 +1,10 @@
+# WMI for offensive task
+
+- Lateral movement
+- Information gathering
+- System modification and process execution
+- Backdoors and persistence
+
 # WMI 101
 
 *WMI = Windows Management Instrumentation*  
@@ -107,7 +114,7 @@ function Get-WmiNamespace {
 }
 ```
 
-## Wmi host recon 
+## WMI host recon 
 
 List class containing "*bios*" string (by default it will request on root\cimv2 Namespace)
 ```
@@ -247,6 +254,23 @@ Get owner for all process
 Get-WmiObject Win32_Process | Select Name, @{Name="UserName"; Expression={$_.GetOwner().Domain+"\"+$_.GetOwner().User}} | Sort-Object UserName, Name
 ```
 
+Detect virtualization
+```
+Get-WmiObject Win32_BIOS -Filter 'SerialNumber LIKE "%VMware%"'
+```
+
+Finding interesting files: Queries all data files on the *C:* thag hae a name containing *password*.
+```
+wmic DATAFILE where "drive='C:' AND Name like '%password%'" GET Name,readable,size /VALUE
+```
+
+## WMI Active Directory Recon
+
+Listing Domain Users
+```
+Get-WMIObject -Class Win32_UserAccount -Filter "DOMAIN = 'corp.local'"
+```
+
 ## WMI Methods
 List all methods within *ROOT\CIMV2*  NameSpace
 ```
@@ -267,6 +291,7 @@ Get-CimClass -Class Win32_process | select -ExpandProperty CimClassMethods | whe
 Invoke the previously enumerated method *Create* from *Win32_Process* class with *calc.exe* argument as parameter to pop up calc.exe process.
 ```
 Invoke-WmiMethod -Class Win32_Process -Name create -ArgumentList calc.exe
+Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList @(calc.exe)
 ```
 
 ## Association classes
@@ -281,17 +306,81 @@ Get-WmiObject -Query "Associators Of {Win32_NetworkAdapter.DeviceID=10} where Cl
  ```
 
 ## WMI Console (WMIC)
+LOLBAS WMIC  
+- https://lolbas-project.github.io/lolbas/Binaries/Wmic/
+
 <img src="./images/wmic_verbs.png" width="500"/>
 
+List process
+```
+wmic:root\cli> process get name 
+```
+
+Create a process
+```
+wmic:root\cli> process call create calc #Require validation
+wmic.exe process call create calc #From CMD or PS shell will not require validation
+```
+
+## Remote WMI
+All WMI cmdlets support the *-ComputerName* parameter, this can be used for remote operations on remote computers.  
+--> Remote operation will require *Administrative privileges*  
+--> WMI use 2 protocols to remote connexion (for CIM cmdlest only through CIM sessions )
+    - DCOM : Distributed Component Object Model (port 135)
+    - WinRM/WsMan : Windows Remote Management (port 5385/HTTP or 5386/HTTPS) -> FireWall and NAT friendly
+
+--> By default WMI use 1 protocol to remote connexion
+    - DCOM : Distributed Component Object Model (port 135)
+
+ ```
+ Get-WmiObject -Class Win32_OperatingSystem -ComputerName 192.168.2.10 -Credential company.local\jdoe
+ ```
+
+```
+$sess = New-CimSession -ComputerName 192.168.2.10 -Credential company.local\jdoe
+Get-CimInstance -CimSession $sess -ClassName Win32_OperatingSystem 
+```
+
+Force DCOM usage
+```
+$sessionoptions = New-CimSessionOption -Protocol Dcom
+$sess = New-CimSession -ComputerName 192.168.2.10 -SessionOption $sessionoptions -Credential company.local\jdoe
+Get-CimInstance -CimSession $sess -ClassName Win32_OperatingSystem
+```
 
 ## Registry key manipulation
 https://docs.microsoft.com/en-us/windows/win32/wmisdk/wmi-tasks--registry
 
 WMI provides a class called StdRegProv for interacting with the Windows Registry.  
---> An important point to note here is that we need to use the root\DEFAULT namespace for working with the registry
- 
+--> An important point to note here is that we need to use the root\DEFAULT namespace for working with the registry  
+--> We can interact with *Remote* or *Local* box  
+
+List all the methods to play with Registry key from *StdRegProv* class
+```
+Get-WmiObject -NameSpace root\default -Class StdRegProv -List | Select -ExpandProperty Methods
 ```
 
-```
+WMI uses constant numeric values to identify different hives in the registry.
 
-using WMI you can set or remove registry key using *Set-WmiObject* and *Remove-WmiObject*.
+| Variable   |      Value      |         Hive         |
+|------------|:---------------:|---------------------:|
+| $HKCR      |    2147483648   |  HKEY_CLASSES_ROOT   |
+| $HKCU      |    2147483649   |  HKEY_CURRENT_USER   |
+| $HKLM      |    2147483650   |  HKEY_LOCAL_MACHINE  |
+| $HKUS      |    2147483651   |  HKEY_USERS          |
+| $HKCC      |    2147483653   |  HKEY_CURRENT_CONFIG |
+
+Using WMI you can set or remove registry key using *Set-WmiObject* and *Remove-WmiObject*.
+
+# Resources
+- BlackHat US 2015: Abusing WMI to built a persistent, asyncronous, and fileless backdoor.https://www.blackhat.com/docs/us-15/materials/us-15-Graeber-Abusing-Windows-Management-Instrumentation-WMI-To-Build-A-Persistent%20Asynchronous-And-Fileless-Backdoor-wp.pdf
+
+- WMI for Script Kiddies
+https://www.trustedsec.com/blog/wmi-for-script-kiddies/
+
+- Usefull WMIC queries for host and domain enumeration
+https://gist.github.com/xorrior/67ee741af08cb1fc86511047550cdaf4
+
+- Red Team handbook WMI command
+https://kwcsec.gitbook.io/the-red-team-handbook/techniques/enumeration/recon-commands/wmic-commands
+
