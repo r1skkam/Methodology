@@ -344,6 +344,12 @@ crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M petitpotam
 ```
 ### samAccountName spoofing
 
+### MiTM - IPv6 + NTLMRelayx
+- https://blog.fox-it.com/2018/01/11/mitm6-compromising-ipv4-networks-via-ipv6/
+
+
+
+
 # Active Directory exploitation
 
 ---> CHECKER RAPPORT Vulns pentest interne (privileged groups, machineAccountQuota, publication Linkedin groupe membership tenable)
