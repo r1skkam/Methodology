@@ -234,10 +234,71 @@ hashcat -m 13100 --force -a 0 hashes.kerberoast passwords_kerb.txt
 ### Exploiting ACL over GPO
 - https://github.com/Group3r/Group3rhttps://github.com/Group3r/Group3r
 
+### Insecure LDAP: LDAPS / Signing / Channel Binding 
+Insecure LDAP traffic can exposed clients to multiple vulnerabilities and exploitation path such as:
+- Unencrypted LDAP (LDAPS) : Credential and authentication interception (port TCP-UDP/389)
+- LDAP Signing disable : LDAP Relay attack (such as SMB Relay but using LDAP)
+- LDAP Channel Binding : 
+
+#### LDAPS
+Domain controllers and clients are in constant exchange and use the LDAP protocol, which communicates via port 389 (TCP and UDP).
+
+In case a customer use LDAP (389) instead of LDAPS (636) you will be able to intercept authentication and credentials.
+
+Why LDAPS is not deployed everywhere:
+- Not all devices are compatible with it (Old telephone systems or legacy applications)
+- Small
+
+*Note:* If SSL is used you can try to make MITM offering a false certificate, if the user accepts it, you are able to *Downgrade the authentication method* and see the credentials again.
+
+#### LDAP Signing disable
+LDAP signing adds a digital signature to the connection. It ensures the authenticity and integrity of the transmitted data. This means that the recipient can verify the sender and determine whether the data has been manipulated along the way.
+
+In case LDAP signing is not enable it is possible to relay a valid LDAP session using *ntlmrelayx* for example.
+The LDAP relay attack will give you the ability to perform multiple action such as :
+
+- Dumping LDAP information (ActiveDirectory users/groups/computers information)
+- In case the relayed session is from a *Domain Admins* user you will be able to directly persiste and create a new *Domain Admins* user.
+- 
+
+#### LDAP Channel Binding
+Channel binding is the act of binding the transport layer and application layer together. In the case of LDAP channel binding, the TLS tunnel and the LDAP application layer are being tied together. When these two layers are tied together it creates a unique fingerprint for the LDAP communication. Any interception of the LDAP communications cannot be re-used as this would require establishing a new TLS tunnel which would invalidate the LDAP communication’s unique fingerprint.
+
+### Unencrypted Protocols in use
+
+#### SMTP
+Port 25
+
+#### HTTP
+Port 80
+
+#### Telnet
+Port 23
+
+#### FTP
+Port 21
+
+##### LDAP
+LDAPS uses its own distinct network port to connect clients and servers. The default port for LDAP is port 389, but LDAPS uses port 636 and establishes TLS/SSL upon connecting with a client.
+
 ### GPP / GPO passwords
 
 ### LLMNR / NBT-NS / mDNS
 > Microsoft systems use Link-Local Multicast Name Resolution (LLMNR) and the NetBIOS Name Service (NBT-NS) for local host resolution when DNS lookups fail. Apple Bonjour and Linux zero-configuration implementations use Multicast DNS (mDNS) to discover systems within a network.
+
+#### Responder + ntlmrelayx
+It is possible to directly relay NetNTLM has to SMB/LDAP/HTTP and DNS session over a victim. If the victim has SMB and/or LDAP signing activated try to relay on other protocols than SMB or LDAP.
+
+Poisoning LLMNR/NetBios-NS response
+```
+python3 Responder.py -I eth0 -wbF
+```
+
+Relay over smb to 192.168.0.10, with smb2 support, socks enable, interactive mode and dumping the NetNTLM relayed hash in option
+```
+sudo ntlmrelayx.py -t 192.168.0.10 -i -socks -smb2support -debug --output-file ./netntlm.hashes.relay
+```
+
 
 ### WPAD
 Many browsers use Web Proxy Auto-Discovery (WPAD) to load proxy settings from the network, download the wpad.dat, Proxy Auto-Config (PAC) file.
