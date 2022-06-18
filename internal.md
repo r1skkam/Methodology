@@ -153,6 +153,16 @@ python pywerview.py get-netuser -w company.local -u jdoe --dc-ip 192.168.0.10 --
 
 # Exploitation
 
+### Identifying Quick Wins
+- Tomcat
+- JavaRMI
+- WebLogic
+- Jboss
+
+```
+nmap -p 8080,1098,1099,1050,8000,8888,8008,37471,40259,9010,7001 -iL ips.txt -oN tomcat_rmi_jboss.txt -sV
+```
+
 ### adPeas
 - https://github.com/61106960/adPEAS
 
@@ -490,6 +500,9 @@ certutil.exe -config - -ping
 - https://github.com/PKISolutions/PSPKI
 - https://www.exandroid.dev/2021/06/23/ad-cs-relay-attack-practical-guide/
 
+### ADCS
+
+
 ### ADCS WebDav + NTLM relay to LDAP
 - https://twitter.com/tifkin_/status/1418855927575302144/photo/1
 - https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/adcs-+-petitpotam-ntlm-relay-obtaining-krbtgt-hash-with-domain-controller-machine-certificate#rbcd-remote-computer-takeover
@@ -547,6 +560,16 @@ Kerberos SessionError: KRB_AP_ERR_SKEW(Clock skew too great)
 - https://dirkjanm.io/worst-of-both-worlds-ntlm-relaying-and-kerberos-delegation/
 - https://posts.specterops.io/a-case-study-in-wagging-the-dog-computer-takeover-2bcb7f94c783
 - https://shenaniganslabs.io/2019/01/28/Wagging-the-Dog.html
+
+Check for system trusted for delegation
+```
+crackmapexec ldap 192.168.0.10 -u jdoe -p Password123 --trusted-for-delegation
+OR
+ldapdomaindump -u "company.local\\jdoe" -p "Password123" 192.168.0.10  
+grep TRUSTED_FOR_DELEGATION domain_computers.grep
+OR
+PS> Get-ADComputer -Filter {TrustedForDelegation -eq $True}
+```
 
 ### From On-Premise to Azure
 - MSOL account
@@ -813,7 +836,6 @@ https://www.thehacker.recipes/physical/networking/network-access-control
 - SMTP
 - ACL/DACL exploitation
 - Owner https://bloodhound.readthedocs.io/en/latest/data-analysis/edges.html#owns
-- Quick wins (RMI, tomcat,...) nmap scan identifying these ports
 - password stored in LSA
 VDocumentation about LSA secrets:
           https://www.passcape.com/index.php?section=docsys&cmd=details&id=23
