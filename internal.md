@@ -468,6 +468,15 @@ crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M zerologon
 
 ### PrintNightmare
 
+#### SpoolSample
+https://github.com/leechristensen/SpoolSample
+
+#### ShadowCoerce
+https://github.com/ShutdownRepo/ShadowCoerce
+
+#### DFSCoerce
+https://github.com/Wh04m1001/DFSCoerce
+
 ### Petitpotam
 PetitPotam, publicly disclosed by French security researcher Lionel Gilles, is comparable to the PrintSpooler bug but utilizes the **MS-EFSRPC** API to coerce authentication rather than **MS-RPRN**.
 
@@ -571,11 +580,42 @@ OR
 PS> Get-ADComputer -Filter {TrustedForDelegation -eq $True}
 ```
 
+#### Exploiting RBCD : MachineAccountQuota
+- https://beta.hackndo.com/resource-based-constrained-delegation-attack/
+
+#### Exploiting RBCD : WRITE Priv
+- https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/resource-based-constrained-delegation-ad-computer-object-take-over-and-privilged-code-execution
+
 ### From On-Premise to Azure
 - MSOL account
 - AzureAD Connect
 
+### Domain Trust
+- https://harmj0y.medium.com/a-guide-to-attacking-domain-trusts-ef5f8992bb9d
+- https://dirkjanm.io/active-directory-forest-trusts-part-one-how-does-sid-filtering-work/
+- https://dirkjanm.io/active-directory-forest-trusts-part-two-trust-transitivity/
+- https://improsec.com/tech-blog/o83i79jgzk65bbwn1fwib1ela0rl2d
+- https://adsecurity.org/?p=1640
+- https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/cc731335(v=ws.11)?redirectedfrom=MSDN
+
+
+### Forest Trust
+- https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc755700(v=ws.10)?redirectedfrom=MSDN
+
+
 # Persistence
+
+### Primary Group ID
+
+The *primary group id* is a a user object attribute and contains *relative identifier* (RID) for the primary group of the user.  
+--> By default this is the RID for the *Domain Users* group (RID 513).
+
+By using the *Primary Group ID attribute* and a *specific Access Control Entry* (ACE), an attacker can hide the membership of one group that he is already a member of without having any permissions on the group.
+
+This cool trick cannot work on members of protected groups such as Domain Admins, but can work on members of normal groups such as DnsAdmins, which can be used to escalate to Domain Admins.
+
+- https://www.semperis.com/blog/how-attackers-can-use-primary-group-membership-for-defense-evasion/
+- https://blog.alsid.eu/primary-group-id-attack-a50dca142771
 
 ### Dropping SPN on admin accounts
 https://adsecurity.org/?p=3466
@@ -692,7 +732,6 @@ Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
 - https://docs.microsoft.com/en-us/windows/win32/adschema/a-useraccountcontrol
 - http://www.selfadsi.org/ads-attributes/user-userAccountControl.htm
 
-<img src="./images/store-password-using-reversible-encryption.png" width="250"/>
 
 ### Accessing LSASS secrets
 
@@ -704,6 +743,79 @@ lsassy -d company.local -u jdoe -p Pass1234 192.168.1.0/24
 ```
 
 ## Misc : AD Audit
+
+#### WDigest
+- https://blog.xpnsec.com/exploring-mimikatz-part-1/
+
+[Wdigest](https://docs.microsoft.com/pt-pt/previous-versions/windows/server/cc778868(v=ws.10)) was introduced in WinXP and designed to be used with HTTP protocol for authentication.  
+
+Enabled *by default* in multiple versions of Windows:
+- Windows XP
+- Windows 8.0
+- Server 2003
+- Server 2008
+- Server 2012
+
+--> With *WDigest* plain text passwords are stored in LSASS.  
+
+Retrieving using Mimikatz
+```
+sekurlsa::wdigest
+```
+
+Can be deactivated/activated setting to *1* the value of *UseLogonCredential* and *Negotiate* in **HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\SecurityProviders\WDigest**.  
+--> If these registry keys don't exist or the value is "0", then WDigest will be deactivated.  
+
+```
+reg query HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential
+reg query HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v Negotiate
+```
+
+As an attacker you can reactivate WDigest to get cleartext credentials on sensitive systems.  
+```
+crackmapexec smb 192.168.0.10 -u jdoe -p Pass123 -M wdigest -o ACTION=enable
+```
+```
+reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 1
+```
+
+#### Passwords stored in LSA (LSA Storage)
+
+Since *Windows 8.1* you can protect LSA storage using Protected Process ([RunAsPPL](https://itm4n.github.io/lsass-runasppl/)).  
+--> This will prevent regular ```mimikatz.exe sekurlsa:logonpasswords``` for working properly.
+
+With this registry key enable, the following *3* actions (which require an handle on LSASS) will no longer be possible:
+```
+sekurlsa:logonpasswords
+lsadump::lsa: Did not work
+sekurlsa::pth /user:<user> /domain:<domain> /ntlm:<ntlmhash>
+```
+
+With this registry key enable, the following *5* actions will still be possible:
+```
+lsadump::dcsync /domain:<domain> /user:<user>
+lsadump::secrets (get syskey information to decrypt secrets from the registry on disk)
+lsadump::sam (Reading credentials from the SAM on disk)
+kerberos::golden /user:<user> /domain:<domain> /sid:<sid> /krbtgt:<krbtgt hash> /endin:<value> /renewmax:<value>
+keystroke logging
+``
+
+Validate *RunAsPPL* is enable
+```
+reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\LSA /v RunAsPPL
+```
+
+- https://www.ired.team/offensive-security/credential-access-and-credential-dumping/dumping-lsa-secrets
+
+Documentation about LSA secrets: https://www.passcape.com/index.php?section=docsys&cmd=details&id=23
+
+--> Mimikatz has the *mimidrv.sys* driver that can bypass LSA Protection. Pretty much flag everywhere you will need to write you own driver.  
+
+
+#### Abusing leaked handles to dump LSASS memory
+- https://github.com/helpsystems/nanodump
+- https://splintercod3.blogspot.com/p/the-hidden-side-of-seclogon-part-2.html
+
 #### LM password storage
 LM hash is an old deprecated method of storing passwords which has the following weaknesses:  
 - Password length is limited to 14 characters
@@ -763,6 +875,15 @@ Data exfiltration and DLP (Data Loss Prevention) bypass.
 - https://github.com/S1ckB0y1337/Active-Directory-Exploitation-Cheat-Sheet
 
 
+#### Kerberos Delegation
+- https://shenaniganslabs.io/2019/01/28/Wagging-the-Dog.html
+- https://www.sstic.org/media/SSTIC2014/SSTIC-actes/secrets_dauthentification_pisode_ii__kerberos_cont/SSTIC2014-Article-secrets_dauthentification_pisode_ii__kerberos_contre-attaque-bordes_2.pdf
+- https://adsecurity.org/?p=4056
+- https://adsecurity.org/?p=1667
+- https://harmj0y.medium.com/s4u2pwnage-36efe1a2777c
+- https://dirkjanm.io/worst-of-both-worlds-ntlm-relaying-and-kerberos-delegation/
+- https://posts.specterops.io/a-case-study-in-wagging-the-dog-computer-takeover-2bcb7f94c783
+
 To use for the course
 - https://github.com/jwardsmith/Active-Directory-Exploitation
 - https://www.infosecmatter.com/top-16-active-directory-vulnerabilities/
@@ -786,11 +907,6 @@ To use for the course
 - Proxylogon,proxyshell
 https://www.praetorian.com/blog/reproducing-proxylogon-exploit/
 - Trust, forest
-- primary group id
-https://adsecurity.org/?tag=primarygroupid
-https://www.tenable.com/blog/primary-group-id-attack-in-active-directory-how-to-defend-against-related-threats
-https://www.semperis.com/blog/how-attackers-can-use-primary-group-membership-for-defense-evasion/
-https://blog.alsid.eu/primary-group-id-attack-a50dca142771
 
 - checker for internal OWA, Exchange vuln
 - Exchange vuln privexchange.py
@@ -836,13 +952,3 @@ https://www.thehacker.recipes/physical/networking/network-access-control
 - SMTP
 - ACL/DACL exploitation
 - Owner https://bloodhound.readthedocs.io/en/latest/data-analysis/edges.html#owns
-- password stored in LSA
-VDocumentation about LSA secrets:
-          https://www.passcape.com/index.php?section=docsys&cmd=details&id=23
-        - >-
-          LSA secrets exfiltration:
-          https://ired.team/offensive-security/credential-access-and-credential-dumping/dumping-lsa-secrets
-        - >-
-          Microsoft documentation on LSA secrets:
-          https://docs.microsoft.com/en-us/windows-server/security/windows-authentication/credentials-processes-in-windows-authentication#BKMK_LSA
-https://casvancooten.com/posts/2020/11/windows-active-directory-exploitation-cheat-sheet-and-command-reference/
