@@ -3,6 +3,29 @@
 # Unauthenticated enumeration
 
 # First foothold
+
+### NAC Bypass (802.1x)
+NAC (Network Access Control) acts as a kind of a gatekeeper to the local network infrastructure. Its usually works with whitelists, blacklists, authentication requirements or host scanning to restrict access and keep unwanted devices out of the network.  
+
+NAC can be setup using multiple measures:
+- Filtering of MAC addresses
+- Authentication with username & password
+- Authentication with certificates
+- Fingerprinting 
+- Host checks
+
+#### 802.1x EAP-TLS
+
+#### 802.1x EAP-PEAP
+
+#### Misc techniques
+Sometimes trying different mac address such as MacOS device, Switch/Routers, Vmware VM can give you access or redirect you to specific VLAN without restriction.
+- VMWARE VM : 00-0C-29-00-4B-3F
+- Apple : F8:FF:C2:23:32:43
+
+- https://www.thehacker.recipes/physical/networking/network-access-control
+- 
+
 ### Username == password
 Using crackmapexec to test for password equal to username on domain contoso.com
 
@@ -844,12 +867,19 @@ reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\LSA /v RunAsPPL
 
 Documentation about LSA secrets: https://www.passcape.com/index.php?section=docsys&cmd=details&id=23
 
---> Mimikatz has the *mimidrv.sys* driver that can bypass LSA Protection. Pretty much flag everywhere you will need to write you own driver.  
-
+--> Mimikatz has the *mimidrv.sys* driver that can bypass LSA Protection. Pretty much flag everywhere you will need to write you own driver. 
+    - https://posts.specterops.io/mimidrv-in-depth-4d273d19e148 
+--> You can also build your own driver and sign it digitally  
+--> You can also load an official and vulnerable driver that can be exploited to run arbitrary code in the Kernel  
+    - https://github.com/fengjixuchui/gdrv-loader  
+    - https://github.com/RedCursorSecurityConsulting/PPLKiller 
+    - https://gorkemkaradeniz.medium.com/defeating-runasppl-utilizing-vulnerable-drivers-to-read-lsass-with-mimikatz-28f4b50b1de5 
+--> Use other process (e.g Antivirus process) which sometimes have already handles on LSASS process  
+    - https://skelsec.medium.com/duping-av-with-handles-537ef985eb03  
 
 #### Abusing leaked handles to dump LSASS memory
-- https://github.com/helpsystems/nanodump
-- https://splintercod3.blogspot.com/p/the-hidden-side-of-seclogon-part-2.html
+- https://github.com/helpsystems/nanodump  
+- https://splintercod3.blogspot.com/p/the-hidden-side-of-seclogon-part-2.html  
 
 #### LM password storage
 LM hash is an old deprecated method of storing passwords which has the following weaknesses:  
@@ -979,8 +1009,6 @@ https://github.com/ly4k/Certipy
 - MITM6
 - Pypykatz
 - Spraykatz
-- NAC bypass
-https://www.thehacker.recipes/physical/networking/network-access-control
 - VLAN hopping
 - SNMP default
 - Potato family : https://hideandsec.sh/books/windows-sNL/page/in-the-potato-family-i-want-them-all
