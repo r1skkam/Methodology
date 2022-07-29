@@ -535,6 +535,9 @@ https://github.com/ShutdownRepo/ShadowCoerce
 #### DFSCoerce
 https://github.com/Wh04m1001/DFSCoerce
 
+#### MultiCoerce
+
+
 ### Petitpotam
 PetitPotam, publicly disclosed by French security researcher Lionel Gilles, is comparable to the PrintSpooler bug but utilizes the **MS-EFSRPC** API to coerce authentication rather than **MS-RPRN**.
 
@@ -948,6 +951,22 @@ Data exfiltration and DLP (Data Loss Prevention) bypass.
 - https://harmj0y.medium.com/s4u2pwnage-36efe1a2777c
 - https://dirkjanm.io/worst-of-both-worlds-ntlm-relaying-and-kerberos-delegation/
 - https://posts.specterops.io/a-case-study-in-wagging-the-dog-computer-takeover-2bcb7f94c783
+
+#### Exceptional blog posts regarding Windows Authentication/Credentials/RDP
+- https://syfuhs.net/
+
+#### Windows Logon Types
+- https://www.alteredsecurity.com/post/fantastic-windows-logon-types-and-where-to-find-credentials-in-them#viewer-732hk
+
+#### Windows Name Pipes
+
+#### COM / DCOM
+
+#### PowerShell Without PowerShell
+- https://decoder.cloud/2017/11/02/we-dont-need-powershell-exe/
+- https://www.ired.team/offensive-security/code-execution/powershell-without-powershell
+- 
+
 
 To use for the course
 - https://github.com/jwardsmith/Active-Directory-Exploitation
