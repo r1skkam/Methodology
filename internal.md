@@ -965,7 +965,19 @@ Data exfiltration and DLP (Data Loss Prevention) bypass.
 #### PowerShell Without PowerShell
 - https://decoder.cloud/2017/11/02/we-dont-need-powershell-exe/
 - https://www.ired.team/offensive-security/code-execution/powershell-without-powershell
-- 
+- https://bank-security.medium.com/how-to-running-powershell-commands-without-powershell-exe-a6a19595f628
+- https://www.blackhillsinfosec.com/powershell-without-powershell-how-to-bypass-application-whitelisting-environment-restrictions-av/
+- https://www.paloaltonetworks.com/blog/security-operations/stopping-powershell-without-powershell/
+- https://www.optiv.com/explore-optiv-insights/blog/unmanaged-powershell-binaries-and-endpoint-protection
+- https://github.com/leechristensen/UnmanagedPowerShell
+
+Tools:
+- [PowerLine](https://github.com/fullmetalcache/PowerLine)
+- [NPS - Not PowerShell](https://github.com/Ben0xA/nps)
+- [PowerShdll](https://github.com/p3nt4/PowerShdll)
+- [PowerLessShell](https://github.com/Mr-Un1k0d3r/PowerLessShell)
+- [Nopowershell](https://github.com/Mr-Un1k0d3r/PowerLessShell)
+- [SyncAppvPublishingServer]()
 
 
 To use for the course
