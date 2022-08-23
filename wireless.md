@@ -83,6 +83,9 @@ WPA3 makes use of such a zero knowledge proof to ensure that no secrets of the p
 SAE handshake goal is to make sure both handshake participants can be sure that the other party knows that they possess the same and correct password.   
 --> Mutual authentication (both parties prove that they have knowledge over the same password.)
 
+### Use WPA3-SAE authentication on Linux
+https://askubuntu.com/questions/1290589/how-to-use-wpa3-with-ubuntu-20-04
+
 ### WPA3-SAE
 
 SAE : Simultaneous Authentication of Equals (SAE)
