@@ -1,4 +1,9 @@
 # Wireless Penetration Testing
+## Installation / Configuration
+It is highly recommanded to use a Kali Linux OS regarding dependencies and current research on WPA3.
+
+Install the driver for ALPHA card.
+https://github.com/aircrack-ng/rtl8812au
 
 ## Recon
 ```
