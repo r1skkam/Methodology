@@ -47,7 +47,8 @@ wlan1     32 channels in total; available frequencies :
 
 ## Changing Wi-Fi card frequency
 ```
-
+┌──(lutzenfried㉿xec)-[~/]
+└─$ sudo iwconfig wlan1 channel 64
 ```
 
 ## Recon
