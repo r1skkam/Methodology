@@ -45,11 +45,20 @@ wlan1     32 channels in total; available frequencies :
           Current Frequency:2.412 GHz (Channel 1)
 ```
 
-## Changing Wi-Fi card frequency
+## Changing Wi-Fi card channel
 ```
-┌──(lutzenfried㉿xec)-[~/]
-└─$ sudo iwconfig wlan1 channel 64
+sudo ifconfig wlan1 down
+sudo iwconfig wlan1 channel 64
+sudo ifconfig wlan1 up
 ```
+
+## Changing Wi-Fi card Frequency
+```
+sudo ifconfig wlan1 down
+sudo iwconfig wlan1 freq "5.52G"
+sudo ifconfig wlan1 up
+```
+                                    
 
 ## Recon
 ```
