@@ -141,6 +141,9 @@ KRAKC attack or Key Reinstallation Attack
 
 ### WPA2-EAP (Enterprise)
 
+#### WPA2-EAP - Password spray attack
+- https://mikeallen.org/blog/2016-10-06-breaking-into-wpa-enterprise-networks-with-air-hammer/
+
 
 ## WPA3
 The major improvement of WPA3 is a improved handshake (*Dragonfly-Handshake*) that makes it impossible for attackers to record the *4-Way Handshake* and launch a offline dictionary attack.  
