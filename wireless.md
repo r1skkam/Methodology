@@ -57,6 +57,18 @@ It is important to have a different exit IP address
 
 ## WPA2
 ### WPA2-PSK
+#### WPA2-PSK (Deauth + Capture handshake + Crack It)
+One of the most known technic to attack WPA2-PSK (Pre Shared Key) is to deauthenticate clients and capture authentication handshake to further brute force it and try to recover clear text password.
+
+##### WPA2-Deauthentication attack (against client)
+
+##### WPA2-Deauthentication attack (against AP)
+
+##### Capture WPA2 Handshake
+
+#### KRACK Attack
+- https://www.krackattacks.com/
+KRAKC attack or Key Reinstallation Attack
 
 ### WPA2-EAP (Enterprise)
 
