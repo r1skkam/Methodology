@@ -65,6 +65,11 @@ sudo ifconfig wlan1 up
 sudo airodump-ng -i wlan0 -w reconfile --output-format csv
 ```
 
+Scan 5Ghz using *a* band
+```
+sudo airodump-ng --band a -i wlan1
+```
+
 ## Captive Portal
 From pwnie express or Wi-Fi physical device you can connect on *Open* Wireless network using the followings commands:
 ```
