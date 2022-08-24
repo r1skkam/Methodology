@@ -126,9 +126,18 @@ One of the most known technic to attack WPA2-PSK (Pre Shared Key) is to deauthen
 
 ##### Capture WPA2 Handshake
 
+#### PMKID
+
+Cracking PMKID hashes using hashcat (newer version of hashcat -m 22000)
+```
+hashcat -a 0 -m 16800 pmkid.txt ../../wordlists/wordlistsOnex/
+```
+
 #### KRACK Attack
 - https://www.krackattacks.com/
 KRAKC attack or Key Reinstallation Attack
+
+#### FRAG Attack
 
 ### WPA2-EAP (Enterprise)
 
