@@ -45,6 +45,12 @@ wlan1     32 channels in total; available frequencies :
           Current Frequency:2.412 GHz (Channel 1)
 ```
 
+## Restart networking service and WPA supplicant
+```
+sudo service networking restart
+sudo systemctl restart networking.service 
+sudo systemctl restart wpa_supplicant.service
+```
 ## Changing Wi-Fi card channel
 ```
 sudo ifconfig wlan1 down
