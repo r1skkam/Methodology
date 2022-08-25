@@ -1,8 +1,73 @@
-# Wireless Penetration Testing
+``# Wireless Penetration Testing
+## Installation / Configuration
+It is highly recommanded to use a Kali Linux OS regarding dependencies and current research on WPA3.
+
+Install the driver for ALPHA card.
+https://github.com/aircrack-ng/rtl8812au
+
+## Check Wi-Fi card frequency and channel available
+```
+┌──(lutzenfried㉿xec)-[~/]
+└─$ iwlist wlan1 channel    
+wlan1     32 channels in total; available frequencies :
+          Channel 01 : 2.412 GHz
+          Channel 02 : 2.417 GHz
+          Channel 03 : 2.422 GHz
+          Channel 04 : 2.427 GHz
+          Channel 05 : 2.432 GHz
+          Channel 06 : 2.437 GHz
+          Channel 07 : 2.442 GHz
+          Channel 08 : 2.447 GHz
+          Channel 09 : 2.452 GHz
+          Channel 10 : 2.457 GHz
+          Channel 11 : 2.462 GHz
+          Channel 12 : 2.467 GHz
+          Channel 13 : 2.472 GHz
+          Channel 36 : 5.18 GHz
+          Channel 40 : 5.2 GHz
+          Channel 44 : 5.22 GHz
+          Channel 48 : 5.24 GHz
+          Channel 52 : 5.26 GHz
+          Channel 56 : 5.28 GHz
+          Channel 60 : 5.3 GHz
+          Channel 64 : 5.32 GHz
+          Channel 100 : 5.5 GHz
+          Channel 104 : 5.52 GHz
+          Channel 108 : 5.54 GHz
+          Channel 112 : 5.56 GHz
+          Channel 116 : 5.58 GHz
+          Channel 120 : 5.6 GHz
+          Channel 124 : 5.62 GHz
+          Channel 128 : 5.64 GHz
+          Channel 132 : 5.66 GHz
+          Channel 136 : 5.68 GHz
+          Channel 140 : 5.7 GHz
+          Current Frequency:2.412 GHz (Channel 1)
+```
+
+## Changing Wi-Fi card channel
+```
+sudo ifconfig wlan1 down
+sudo iwconfig wlan1 channel 64
+sudo ifconfig wlan1 up
+```
+
+## Changing Wi-Fi card Frequency
+```
+sudo ifconfig wlan1 down
+sudo iwconfig wlan1 freq "5.52G"
+sudo ifconfig wlan1 up
+```
+                                    
 
 ## Recon
 ```
 sudo airodump-ng -i wlan0 -w reconfile --output-format csv
+```
+
+Scan 5Ghz using *a* band
+```
+sudo airodump-ng --band a -i wlan1
 ```
 
 ## Captive Portal
@@ -52,8 +117,32 @@ It is important to have a different exit IP address
 
 ## WPA2
 ### WPA2-PSK
+#### WPA2-PSK (Deauth + Capture handshake + Crack It)
+One of the most known technic to attack WPA2-PSK (Pre Shared Key) is to deauthenticate clients and capture authentication handshake to further brute force it and try to recover clear text password.
+
+##### WPA2-Deauthentication attack (against client)
+
+##### WPA2-Deauthentication attack (against AP)
+
+##### Capture WPA2 Handshake
+
+#### PMKID
+
+Cracking PMKID hashes using hashcat (newer version of hashcat -m 22000)
+```
+hashcat -a 0 -m 16800 pmkid.txt ../../wordlists/wordlistsOnex/
+```
+
+#### KRACK Attack
+- https://www.krackattacks.com/
+KRAKC attack or Key Reinstallation Attack
+
+#### FRAG Attack
 
 ### WPA2-EAP (Enterprise)
+
+#### WPA2-EAP - Password spray attack
+- https://mikeallen.org/blog/2016-10-06-breaking-into-wpa-enterprise-networks-with-air-hammer/
 
 
 ## WPA3
@@ -82,6 +171,9 @@ WPA3 makes use of such a zero knowledge proof to ensure that no secrets of the p
 
 SAE handshake goal is to make sure both handshake participants can be sure that the other party knows that they possess the same and correct password.   
 --> Mutual authentication (both parties prove that they have knowledge over the same password.)
+
+### Use WPA3-SAE authentication on Linux
+https://askubuntu.com/questions/1290589/how-to-use-wpa3-with-ubuntu-20-04
 
 ### WPA3-SAE
 
