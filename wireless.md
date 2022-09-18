@@ -1,4 +1,14 @@
-``# Wireless Penetration Testing
+# Wireless Penetration Testing
+
+## Frequency / bands / Channels
+- 2.4 GHz : 11 Channels
+- 5 GHz : 45 Channels
+
+- 2.4 GHz = 802.11 b / g / n / ax
+- 5 GHz = 802.11 a / h / j / n / ac / ax
+ 
+<img src="./images/wifi_amendments.png" width="500"/>
+
 ## Installation / Configuration
 It is highly recommanded to use a Kali Linux OS regarding dependencies and current research on WPA3.
 
@@ -132,6 +142,8 @@ One of the most known technic to attack WPA2-PSK (Pre Shared Key) is to deauthen
 
 ##### Capture WPA2 Handshake
 
+#### KARMA Attack
+
 #### PMKID
 
 Cracking PMKID hashes using hashcat (newer version of hashcat -m 22000)
@@ -259,3 +271,14 @@ https://github.com/Offensive-Wireless/Wireless-Penetration-Testing
 https://gist.github.com/dogrocker/86881d2403fee138487054da82d5dc2e
 https://github.com/ivan-sincek/wifi-penetration-testing-cheat-sheet#wpawpa2-handshake
 https://github.com/ricardojoserf/wifi-pentesting-guide
+
+
+## Vulnerabilities for WLANs Networks
+
+## Defenses
+https://github.com/SYWorks/waidps
+http://syworks.blogspot.com/2014/04/waidps-wireless-auditing-intrusion.html
+
+
+KARMA Attack detection
+https://github.com/AlexLynd/WiFi-Pineapple-Detector
