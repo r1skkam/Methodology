@@ -32,7 +32,8 @@ It is *highly recommanded* to use a [Kali Linux OS](https://www.kali.org/get-kal
 Install the driver for ALPHA card.
 https://github.com/aircrack-ng/rtl8812au
 
-## Check Wi-Fi card frequency and channel available
+## Debug and Wi-Fi ninja 
+#### Check Wi-Fi card frequency and channel available
 ```
 ┌──(lutzenfried㉿xec)-[~/]
 └─$ iwlist wlan1 channel    
@@ -72,20 +73,21 @@ wlan1     32 channels in total; available frequencies :
           Current Frequency:2.412 GHz (Channel 1)
 ```
 
-## Restart networking service and WPA supplicant
+### Restart networking service and WPA supplicant
 ```
 sudo service networking restart
 sudo systemctl restart networking.service 
 sudo systemctl restart wpa_supplicant.service
 ```
-## Changing Wi-Fi card channel
+
+### Changing Wi-Fi card channel
 ```
 sudo ifconfig wlan1 down
 sudo iwconfig wlan1 channel 64
 sudo ifconfig wlan1 up
 ```
 
-## Changing Wi-Fi card Frequency
+### Changing Wi-Fi card Frequency
 ```
 sudo ifconfig wlan1 down
 sudo iwconfig wlan1 freq "5.52G"
@@ -103,7 +105,13 @@ Scan 5Ghz using *a* band
 sudo airodump-ng --band a -i wlan1
 ```
 
-## Captive Portal
+## Passive Sniffing
+- Wireless interface into *monitor* mode (**airmon-ng**, **iw** utility)
+--> Wireless card can only be on *1 channel* at a time.  
+
+
+
+## Captive Portal bypass
 From pwnie express or Wi-Fi physical device you can connect on *Open* Wireless network using the followings commands:
 ```
 sudo ifconfig wlan0 down
@@ -272,6 +280,11 @@ Tools used for attacks against dragonfly key exchange. Targeting WPA3-SAE and EA
 
 
 ### WPA3-EAP
+
+## Wi-Fi Hacking Mind Map
+
+- [Link to the map](https://raw.githubusercontent.com/koutto/pi-pwnbox-rogueap/main/mindmap/WiFi-Hacking-MindMap-v1.png)
+<img src="./images/wifi_mindmap.png" width="700"/>
 
 ## Resources
 - https://sarwiki.informatik.hu-berlin.de/WPA3_Dragonfly_Handshake#:~:text=The%20major%20improvement%20of%20WPA3,traffic%20after%20a%20key%20breach.
