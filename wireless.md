@@ -26,6 +26,10 @@ Non Overlapping channels for 2.4 GHz (to avoid interferences) with channel bondi
 
 <img src="./images/attenuation.png" width="500"/>
 
+### Antennas
+
+<img src="./images/antennas.png" width="500"/>
+
 ## Installation / Configuration
 It is *highly recommanded* to use a [Kali Linux OS](https://www.kali.org/get-kali/#kali-installer-images) with bare metal install regarding dependencies and current research on WPA3 or tool for WPA2-Enterprise.
 
@@ -288,11 +292,35 @@ Tools used for attacks against dragonfly key exchange. Targeting WPA3-SAE and EA
 
 ## Resources
 - https://sarwiki.informatik.hu-berlin.de/WPA3_Dragonfly_Handshake#:~:text=The%20major%20improvement%20of%20WPA3,traffic%20after%20a%20key%20breach.
+
 - https://sarwiki.informatik.hu-berlin.de/WPA3_Dragonfly_Handshake#:~:text=The%20major%20improvement%20of%20WPA3,traffic%20after%20a%20key%20breach.
+
+#### Pi-PwnBox Rogue AP
+- https://github.com/koutto/pi-pwnbox-rogueap
+
+#### OpenWRT supported devices
+- https://openwrt.org/toh/views/toh_extended_all
+
+#### OpenWRT Compatibles routers
+- https://openwrt.org/toh/start
 
 ##### Dragonblood: Analyzing the Dragonfly Handshake of WPA3 and EAP-pwd
 - https://papers.mathyvanhoef.com/dragonblood.pdf
 
+## Tools
+- https://github.com/derv82/wifite2
+- https://github.com/sensepost/berate_ap
+- https://github.com/vanhoefm/krackattacks-poc-zerokey
+- https://github.com/ZerBea/hcxtools
+- https://github.com/sensepost/hostapd-mana
+- https://github.com/sensepost/ppp_sycophant
+- https://github.com/sensepost/wpa_sycophant
+- https://github.com/s0lst1c3/eaphammer
+- https://github.com/vanhoefm/dragonslayer
+- https://github.com/vanhoefm/dragondrain-and-time
+- https://github.com/vanhoefm/dragonforce
+- https://github.com/vanhoefm/fragattacks
+- https://github.com/vanhoefm/krackattacks-scripts
 
 
 To do course
