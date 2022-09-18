@@ -7,7 +7,7 @@
 - 2.4 GHz = 802.11 b / g / n / ax
 - 5 GHz = 802.11 a / h / j / n / ac / ax
  
-<img src="./images/wifi_amendments.png" width="500"/>
+<img src="./images/wifi_amendments.png" width="700"/>
 
 ## Installation / Configuration
 It is highly recommanded to use a Kali Linux OS regarding dependencies and current research on WPA3.
