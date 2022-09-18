@@ -28,7 +28,7 @@ Non Overlapping channels for 2.4 GHz (to avoid interferences) with channel bondi
 
 ### Antennas
 
-<img src="./images/antennas.png" width="700"/>
+<img src="./images/antennas.png" width="900"/>
 
 ## Installation / Configuration
 It is *highly recommanded* to use a [Kali Linux OS](https://www.kali.org/get-kali/#kali-installer-images) with bare metal install regarding dependencies and current research on WPA3 or tool for WPA2-Enterprise.
