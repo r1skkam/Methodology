@@ -1115,3 +1115,5 @@ https://github.com/ly4k/Certipy
 - SMTP
 - ACL/DACL exploitation
 - Owner https://bloodhound.readthedocs.io/en/latest/data-analysis/edges.html#owns
+
+LAPS, JEA, WSL, RBCD, WDAC, ASR, AWL, Credential Guard, CLM, virtualization 
