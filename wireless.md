@@ -1,7 +1,7 @@
 # Wireless Penetration Testing
 
 ## Frequency / bands / Channels
-- 2.4 GHz : 11 Channels
+- 2.4 GHz : 11 Channels (14 total, e.g: In Japan)
 - 5 GHz : 45 Channels
 
 - 2.4 GHz = 802.11 b / g / n / ax
@@ -9,8 +9,25 @@
  
 <img src="./images/wifi_amendments.png" width="700"/>
 
+Overlapping channels for 2.4 GHz
+<img src="./images/overlapping.png" width="700"/>
+
+Non Overlapping channels for 2.4 GHz (to avoid interferences) with channel bonding
+<img src="./images/nonoverlapping.png" width="700"/>
+
+### Signal and attenuation 2.4GHz VS 5GHz
+
+<img src="./images/signal.png" width="500"/>
+
+--> The *higher* the frequency of a wireless signal the *shorter* the range.  
+--> 2.4GHz (802.11g) covers a substantial larger range than that of 5.0GHz (802.11a)  
+--> The higher frequency signals of 5.0GHz do not penetrate solid objects nearly as well as do 2.4GHz signals.  
+--> The smaller wavelength of 5.0GHz allows a higher absorption rate by solid objects
+
+<img src="./images/attenuation.png" width="500"/>
+
 ## Installation / Configuration
-It is highly recommanded to use a Kali Linux OS regarding dependencies and current research on WPA3.
+It is *highly recommanded* to use a [Kali Linux OS](https://www.kali.org/get-kali/#kali-installer-images) with bare metal install regarding dependencies and current research on WPA3 or tool for WPA2-Enterprise.
 
 Install the driver for ALPHA card.
 https://github.com/aircrack-ng/rtl8812au
