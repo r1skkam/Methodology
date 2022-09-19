@@ -30,6 +30,10 @@ Non Overlapping channels for 2.4 GHz (to avoid interferences) with channel bondi
 
 <img src="./images/antennas.png" width="900"/>
 
+## WLAN basics
+### Frame
+
+
 ## Installation / Configuration
 It is *highly recommanded* to use a [Kali Linux OS](https://www.kali.org/get-kali/#kali-installer-images) with bare metal install regarding dependencies and current research on WPA3 or tool for WPA2-Enterprise.
 
@@ -113,36 +117,13 @@ sudo airodump-ng --band a -i wlan1
 - Wireless interface into *monitor* mode (**airmon-ng**, **iw** utility)
 --> Wireless card can only be on *1 channel* at a time.  
 
-
-
-## Captive Portal bypass
-From pwnie express or Wi-Fi physical device you can connect on *Open* Wireless network using the followings commands:
-```
-sudo ifconfig wlan0 down
-sudo iwconfig wlan0 mode ad-hoc
-sudo ifconfig wlan0 up
-```
---> The *WLAN0* card is now in *ad-hoc* mode.  
-
-
-```
-sudo iwlist wlan0 scan OR nmcli dev wifi list
-sudo iwconfig wlan0 essid OnexVisitor
-```
-
-Listing connection using nmcli and deleting connection
-```
-sudo nmcli connection show
-sudo nmcli connection delete ee849992-5b40-4767-8583-cf9150abf7dd
-```
-
 ## WPS Pin
 
 ## Guest Network
 
 #### Guest network without password
 
-#### Mac based authentication
+#### MAC based authentication (Captive Portal Bypass)
 
 #### Network Isolation
 
@@ -289,6 +270,19 @@ Tools used for attacks against dragonfly key exchange. Targeting WPA3-SAE and EA
 
 - [Link to the map](https://raw.githubusercontent.com/koutto/pi-pwnbox-rogueap/main/mindmap/WiFi-Hacking-MindMap-v1.png)
 <img src="./images/wifi_mindmap.png" width="700"/>
+
+## Other Attacks
+#### Fake Captive Portal
+
+- Asking connected client for AD or any sensitive credentials 
+- You could also redirect the user to download some binary
+
+#### Fake Open Access Point
+The main goal is to create an interesting enough SSID in order for a victim to connect (e.g. SSID: Company-FreeSnacks).  
+
+- Monitor connection from clients
+- Directly attacked clients
+- MITM their traffic
 
 ## Resources
 - https://sarwiki.informatik.hu-berlin.de/WPA3_Dragonfly_Handshake#:~:text=The%20major%20improvement%20of%20WPA3,traffic%20after%20a%20key%20breach.
