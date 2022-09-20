@@ -40,11 +40,13 @@ WireShark filter: ```(wlan.fc.type == 0)&&(wlan.fc.type_subtype == 0x0c)```
 
 <img src="./images/management_frames.png" width="500"/>
 
-- *Beacon Frame*: It contains all the information about the network. Beacon frames are transmitted periodically, they serve to announce the presence of a wireless LAN and to synchronise the members of the service set. Beacon frames are transmitted by the access point (AP) in an infrastructure basic service set (BSS).
+- [**Beacon Frame**](https://mrncciew.com/2014/10/08/802-11-mgmt-beacon-frame/): It contains all the information about the network. Beacon frames are transmitted periodically, they serve to announce the presence of a wireless LAN and to synchronise the members of the service set. Beacon frames are transmitted by the access point (AP) in an infrastructure basic service set (BSS).
 
 <img src="./images/beaconframe.gif" width="250"/>
 
-- *Probe Request*: 
+- [**Probe Request / Response**](https://mrncciew.com/2014/10/27/cwap-802-11-probe-requestresponse/): Client looking for specific SSID or wildcard SSID which means any SSID available. Probe Requests are send by the client on broadcast. 
+
+<img src="./images/proberesponse.png" width="500"/>
 
 #### Control Frames
 - https://mrncciew.com/2014/09/27/cwap-mac-header-frame-control/
