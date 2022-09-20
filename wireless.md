@@ -40,11 +40,34 @@ WireShark filter: ```(wlan.fc.type == 0)&&(wlan.fc.type_subtype == 0x0c)```
 
 <img src="./images/management_frames.png" width="500"/>
 
+- Beacon Frame: It contains all the information about the network. Beacon frames are transmitted periodically, they serve to announce the presence of a wireless LAN and to synchronise the members of the service set. Beacon frames are transmitted by the access point (AP) in an infrastructure basic service set (BSS).
+
+![Alt Text](https://en.wikipedia.org/wiki/Beacon_frame#/media/File:802.11_Beacon_frame.gif)
+
+
+- Probe Request: 
+
 #### Control Frames
 - https://mrncciew.com/2014/09/27/cwap-mac-header-frame-control/
 
 #### Data Frames
 - https://mrncciew.com/2014/10/13/cwap-802-11-data-frame-types/
+
+### Authentication Types
+#### Open Authentication
+- Open
+- OWE
+
+#### Personal Authentication
+- WEP
+- WPA/WPA2-PSK
+- WPA3-SAE
+
+#### Enterprise Authentication
+- WPA/WPA2/WPA3-EAP
+  - Methods:
+    1. dd
+    2. 
 
 ## Installation / Configuration
 It is *highly recommanded* to use a [Kali Linux OS](https://www.kali.org/get-kali/#kali-installer-images) with bare metal install regarding dependencies and current research on WPA3 or tool for WPA2-Enterprise.
@@ -128,6 +151,9 @@ sudo airodump-ng --band a -i wlan1
 ## Passive Sniffing
 - Wireless interface into *monitor* mode (**airmon-ng**, **iw** utility)
 --> Wireless card can only be on *1 channel* at a time.  
+
+## Open Network
+
 
 ## WPS Pin
 
