@@ -31,8 +31,20 @@ Non Overlapping channels for 2.4 GHz (to avoid interferences) with channel bondi
 <img src="./images/antennas.png" width="900"/>
 
 ## WLAN basics
-### Frame
+### Frames
 
+#### Management Frames
+- https://mrncciew.com/2014/09/29/cwap-802-11-mgmt-frame-types/
+
+WireShark filter: ```(wlan.fc.type == 0)&&(wlan.fc.type_subtype == 0x0c)```
+
+<img src="./images/management_frames.png" width="500"/>
+
+#### Control Frames
+- https://mrncciew.com/2014/09/27/cwap-mac-header-frame-control/
+
+#### Data Frames
+- https://mrncciew.com/2014/10/13/cwap-802-11-data-frame-types/
 
 ## Installation / Configuration
 It is *highly recommanded* to use a [Kali Linux OS](https://www.kali.org/get-kali/#kali-installer-images) with bare metal install regarding dependencies and current research on WPA3 or tool for WPA2-Enterprise.
