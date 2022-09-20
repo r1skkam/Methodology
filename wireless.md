@@ -40,11 +40,11 @@ WireShark filter: ```(wlan.fc.type == 0)&&(wlan.fc.type_subtype == 0x0c)```
 
 <img src="./images/management_frames.png" width="500"/>
 
-- Beacon Frame: It contains all the information about the network. Beacon frames are transmitted periodically, they serve to announce the presence of a wireless LAN and to synchronise the members of the service set. Beacon frames are transmitted by the access point (AP) in an infrastructure basic service set (BSS).
+- *Beacon Frame*: It contains all the information about the network. Beacon frames are transmitted periodically, they serve to announce the presence of a wireless LAN and to synchronise the members of the service set. Beacon frames are transmitted by the access point (AP) in an infrastructure basic service set (BSS).
 
-![](./images/beaconframe.gif)
+<img src="./images/beaconframe.gif" width="250"/>
 
-- Probe Request: 
+- *Probe Request*: 
 
 #### Control Frames
 - https://mrncciew.com/2014/09/27/cwap-mac-header-frame-control/
