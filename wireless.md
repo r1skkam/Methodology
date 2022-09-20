@@ -42,8 +42,7 @@ WireShark filter: ```(wlan.fc.type == 0)&&(wlan.fc.type_subtype == 0x0c)```
 
 - Beacon Frame: It contains all the information about the network. Beacon frames are transmitted periodically, they serve to announce the presence of a wireless LAN and to synchronise the members of the service set. Beacon frames are transmitted by the access point (AP) in an infrastructure basic service set (BSS).
 
-![Alt Text](https://en.wikipedia.org/wiki/Beacon_frame#/media/File:802.11_Beacon_frame.gif)
-
+![](./images/beaconframe.gif)
 
 - Probe Request: 
 
