@@ -153,10 +153,57 @@ sudo airodump-ng --band a -i wlan1
 - Wireless interface into *monitor* mode (**airmon-ng**, **iw** utility)
 --> Wireless card can only be on *1 channel* at a time.  
 
+**Tools**: Wireshark, tshark, termshark, tcpdump, airodump-ng, horst
+- [Wireshark WLAN filters cheat-sheet](https://semfionetworks.com/wp-content/uploads/2021/04/wireshark_802.11_filters_-_reference_sheet.pdf)
+
+## Preferred Network List (PNL)
+The PNL or Preferred Network List is a list of Wi-Fi network names (SSIDs) your device automatically trusts. (PNL is generated from the networks you have connected to over time)
+
+1. Sniff the PNL through probe request emitted by STA (Station/client)
+2. Create fake access point with same SSID (Wi-Fi routeur, HostAPD, WiFiPhisher, BetterCap, EAPHammer, airbase-ng)
+3. Redirect the connected STA to phishing page / Attack the client (windows client)
+
+<img src="./images/pnl.png" width="500"/>
+
+Hostapd config file for open authentication Wi-Fi network
+```
+interface=wlan1
+driver=nl80211
+ssid=GuestCorpWifi
+bssid=A5:C4:0D:6A:75:3A
+channel=6
+```
+
+Launch fake open authentication Wi-Fi network
+```
+hostapd open.conf
+```
+
 ## Open Network
 
+## Beacon flood attack
+Beacon flood attack is more a nuisance attack linked to 802.11 protocol weaknesses.
+- https://github.com/aircrack-ng/mdk4
+
+You can randomly create SSID or give specific wordlist for SSID names.
+```
+mdk4 wlan1 b -a -g -f ssid_names.txt
+```
+
+<img src="./images/beaconflood.png" width="300"/>
+
+## Deauthentication attack
+Deauthentication attack is possible because within WPA2 (PSK and Enterprise (MGT)) the management frames are not protected. Its also more of a nuisance attack but can be usefull (comparing to beacon flood) to deauthenticate an STA (station/client) to intercept WPA2-handshake or redirect STA (station/client) to authenticate against your fake **Radius** server (WPA2-Enterprise).
+
+--> Deauthentication can also be usefull when bypassing Captive Portal, to force client to reconnect and get their MAC address.
 
 ## WPS Pin
+
+Checking within a capture the WLAN with WPS enable
+```
+wps.wifi_protected_setup_state==2
+```
+
 
 ## Guest Network
 
@@ -337,8 +384,12 @@ The main goal is to create an interesting enough SSID in order for a victim to c
 #### OpenWRT Compatibles routers
 - https://openwrt.org/toh/start
 
-##### Dragonblood: Analyzing the Dragonfly Handshake of WPA3 and EAP-pwd
+#### SSID Oracle Attack on Undisclosed Wi-Fi Preferred Network Lists
+- https://www.hindawi.com/journals/wcmc/2018/5153265/
+
+#### Dragonblood: Analyzing the Dragonfly Handshake of WPA3 and EAP-pwd
 - https://papers.mathyvanhoef.com/dragonblood.pdf
+
 
 ## Tools
 - https://github.com/derv82/wifite2
