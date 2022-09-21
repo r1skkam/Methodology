@@ -168,7 +168,7 @@ sudo airodump-ng --band a -i wlan1
 The PNL or Preferred Network List is a list of Wi-Fi network names (SSIDs) your device automatically trusts. (PNL is generated from the networks you have connected to over time)
 
 1. Sniff the PNL through probe request emitted by STA (Station/client)
-2. Create fake access point with same SSID (Wi-Fi routeur, HostAPD, WiFiPhisher, BetterCap, EAPHammer, airbase-ng)
+2. Create fake access point with same SSID (Wi-Fi routeur, HostAPD, WiFiPhisher, BetterCap, EAPHammer, airbase-ng, [nodogsplash](https://www.sevenlayers.com/index.php/304-evil-captive-portal))
 3. Redirect the connected STA to phishing page / Attack the client (windows client)
 
 <img src="./images/pnl.png" width="500"/>
@@ -186,6 +186,10 @@ Launch fake open authentication Wi-Fi network
 ```
 hostapd open.conf
 ```
+
+--> You can also use WiFi PineApple to setup a captive portal using the "Evil Portal" infusion.  
+- https://wiki.wifipineapple.com/legacy/#!captive_portal.md
+- https://github.com/kleo/evilportals
 
 ## Open Network
 
