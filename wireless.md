@@ -187,6 +187,20 @@ Scan 5Ghz using *a* band
 sudo airodump-ng --band a -i wlan1
 ```
 
+## Hidden SSID
+#### With Connected Clients
+1. Run airodump-ng on the same channel as of SSID
+```
+sudo airodump-ng wlan1 -c 11
+```
+2. Send deauth packets to clients
+3. Client will send probe requests and AP will respond with probe response disclosing the SSID name
+
+#### Without Connected Clients
+1. Run dictionary attack
+2. Popular [SSID](https://github.com/ytisf/mdk3_6.1/blob/master/useful_files/common-ssids.txt) [dictionary](https://gist.github.com/jgamblin/da795e571fb5f91f9e86a27f2c2f626f) from internet or create one
+3. Run automated script to try to connect to each SSID
+   
 ## Passive Sniffing
 - Wireless interface into *monitor* mode (**airmon-ng**, **iw** utility)
 --> Wireless card can only be on *1 channel* at a time.  
