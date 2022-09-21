@@ -66,8 +66,17 @@ WireShark filter: ```(wlan.fc.type == 0)&&(wlan.fc.type_subtype == 0x0c)```
 #### Enterprise Authentication
 - WPA/WPA2/WPA3-EAP
   - Methods:
-    1. dd
-    2. 
+    1. EAP-GTC
+    2. EAP-MD5
+    3. EAP-PAP
+    4. EAP-CHAP
+    5. EAP-MSCHAP
+    6. EAP-MSCHAPv2
+    7. EAP-TLS
+    8. EAP-AKA/AKA'
+    9. EAP-PWD
+    10. EAP-SIM
+    11. EAP-NOOB
 
 ## Installation / Configuration
 It is *highly recommanded* to use a [Kali Linux OS](https://www.kali.org/get-kali/#kali-installer-images) with bare metal install regarding dependencies and current research on WPA3 or tool for WPA2-Enterprise.
@@ -192,9 +201,14 @@ mdk4 wlan1 b -a -g -f ssid_names.txt
 <img src="./images/beaconflood.png" width="300"/>
 
 ## Deauthentication attack
-Deauthentication attack is possible because within WPA2 (PSK and Enterprise (MGT)) the management frames are not protected. Its also more of a nuisance attack but can be usefull (comparing to beacon flood) to deauthenticate an STA (station/client) to intercept WPA2-handshake or redirect STA (station/client) to authenticate against your fake **Radius** server (WPA2-Enterprise).
+Deauthentication attack is possible because within WPA2 (PSK and Enterprise (MGT)) the management frames are not protected. Its also more of a nuisance attack but can be usefull (comparing to beacon flood) to deauthenticate an STA (station/client) to intercept WPA2-handshake or redirect STA (station/client) to authenticate against your fake **Radius** server (WPA2-Enterprise).  
 
---> Deauthentication can also be usefull when bypassing Captive Portal, to force client to reconnect and get their MAC address.
+--> Deauthentication can also be usefull when bypassing Captive Portal, to force client to reconnect and get their MAC address.  
+
+Deauth using aireplay-ng (-c : client is optional)
+```
+aireplay-ng -0 100 -a BSSID -c STA/CLIENT wlan1
+```
 
 ## WPS Pin
 
