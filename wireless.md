@@ -173,7 +173,7 @@ network={
 }
 ```
 
-<img src="./images/supplicant.png" width="500"/>
+<img src="./images/supplicant.png" width="750"/>
 
 ## Recon
 ```
