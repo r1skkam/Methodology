@@ -8,13 +8,13 @@
  
 <img src="./images/wifi_amendments.png" width="700"/>
 
-Overlapping channels for 2.4 GHz
+#### Overlapping channels for 2.4 GHz  
 <img src="./images/overlapping.png" width="500"/>
-
-Non Overlapping channels for 2.4 GHz (to avoid interferences) with channel bonding
+ 
+#### Non Overlapping channels for 2.4 GHz (to avoid interferences) with channel bonding  
 <img src="./images/nonoverlapping.png" width="500"/>
 
-### Signal and attenuation 2.4GHz VS 5GHz
+#### Signal and attenuation 2.4GHz VS 5GHz
 
 <img src="./images/signal.png" width="500"/>
 
@@ -25,7 +25,7 @@ Non Overlapping channels for 2.4 GHz (to avoid interferences) with channel bondi
 
 <img src="./images/attenuation.png" width="500"/>
 
-### Antennas
+#### Antennas
 
 <img src="./images/antennas.png" width="900"/>
 
