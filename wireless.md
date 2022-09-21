@@ -145,12 +145,42 @@ sudo ifconfig wlan1 down
 sudo iwconfig wlan1 freq "5.52G"
 sudo ifconfig wlan1 up
 ```
-                                    
+
+### Monitor mode
+```
+airmon-ng start wlan0
+```
+
+```
+ifconfig wlan0 down
+iw dev wlan0 set monitor none
+ifconfig wlan0 up
+```
+
+### Connect using wpa-supplicant
+
+wpa_supplicant -D nl80211 -i wlan1 -c psk.conf
+
+*psk.conf*
+```
+network={
+    ssid="CompanyWiFi"
+    psk="SuperPassword"
+    proto=RSN
+    key_mgmt=WPA-PSK
+    pairwise=CCMP TKIP
+    group=CCMP TKIP
+}
+```
+
+<img src="./images/supplicant.png" width="300"/>
 
 ## Recon
 ```
 sudo airodump-ng -i wlan0 -w reconfile --output-format csv
 ```
+
+--> Within airodump-ng you can press "**a**" key to display ap only / sta only / ap + sta
 
 Scan 5Ghz using *a* band
 ```
@@ -180,6 +210,26 @@ driver=nl80211
 ssid=GuestCorpWifi
 bssid=A5:C4:0D:6A:75:3A
 channel=6
+```
+
+Hostapd config file for WPA2-PSK authentication
+```
+interface=wlan1
+driver=nl80211
+ssid=dex-net
+wpa=2
+wpa_passphrase=password
+wpa_key_mgmt=WPA-PSK
+rsn_pairwise=CCMP
+channel=1
+
+bss=wlan1_0
+ssid=dex-network
+wpa=2
+wpa_passphrase=Password1
+wpa_key_mgmt=WPA-PSK
+rsn_pairwise=CCMP
+channel=1
 ```
 
 Launch fake open authentication Wi-Fi network
@@ -227,6 +277,15 @@ wps.wifi_protected_setup_state==2
 #### Guest network without password
 
 #### MAC based authentication (Captive Portal Bypass)
+1. You **first** need to authenticate on the Open Wifi. You will then be redirected to the captive portal.
+2. At this time you will need to find a connected STA/Client (you can send **deauth** to a BSSID hosting the open network to increase the chance of getting a valid MAC address from connected STA/Client)
+3. MAC change you wlan interface MAC address
+  
+```
+ifconfig wlan1 down
+macchanger -m D2:E9:6A:D3:B3:51 wlan1
+ifconfig wlan1 up
+```
 
 #### Network Isolation
 
@@ -238,7 +297,7 @@ Sometimes it is possible to bypass conditonal access policy for example regardin
 This represents a vulnerability and could give to an attacker the ability to get a first foothold.
 
 #### Guest Exposed IP VS Corporate Exposed IP
-It is important to have a different exit IP address 
+It is important to have a different exit public IP address for any guest regarding the internal network IP.
 
 ## WEP
 
