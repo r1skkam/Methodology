@@ -2,10 +2,9 @@
 
 ## Frequency / bands / Channels
 - 2.4 GHz : 11 Channels (14 total, e.g: In Japan)
+  - 2.4 GHz = 802.11 b / g / n / ax
 - 5 GHz : 45 Channels
-
-- 2.4 GHz = 802.11 b / g / n / ax
-- 5 GHz = 802.11 a / h / j / n / ac / ax
+  - 5 GHz = 802.11 a / h / j / n / ac / ax
  
 <img src="./images/wifi_amendments.png" width="700"/>
 
