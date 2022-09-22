@@ -189,7 +189,7 @@ sudo airodump-ng --band a -i wlan1
 
 ## Hidden SSID
 #### With Connected Clients
-1. Run airodump-ng on the same channel as of SSID
+1. Run airodump-ng on the same channel as of SSID 
 ```
 sudo airodump-ng wlan1 -c 11
 ```
@@ -289,6 +289,16 @@ wps.wifi_protected_setup_state==2
 ## Guest Network
 
 #### Guest network without password
+MAC based restriction or captive portal are bypassable security solution but providing Guest network without password can be worst.
+
+1. Verify the client connected within the guest network can see each other ()
+2. Verify Guest network isolation with corporate Wi-Fi, or protected Wi-Fi (WPA/WPA2-PSK/WPA3/WPA2-Enterprise)
+3. Verify Guest network isolation with internal corporate network IP range
+4. Check if the public source IP from Guest network is the same as from internal corporate or corporate Wi-Fi with authentication
+5. Check default creds on network components
+6. Check for vulnerabilities (RCE,...) on network components
+
+--> If client isolation is not in place, check to password spray on Windows hosts or attack them (MS17-010, EternalBlue...)
 
 #### MAC based authentication (Captive Portal Bypass)
 1. You **first** need to authenticate on the Open Wifi. You will then be redirected to the captive portal.
@@ -303,6 +313,8 @@ ifconfig wlan1 up
 
 #### Network Isolation
 
+- Validate the network isolation/segmentation between guest wi-fi, captive portal based authentication wi-fi and internal corporate network or Wi-Fi corporate network.
+
 #### Client isolation/separation
 
 #### Azure AD and conditional Access Policy
@@ -310,10 +322,19 @@ Sometimes it is possible to bypass conditonal access policy for example regardin
 
 This represents a vulnerability and could give to an attacker the ability to get a first foothold.
 
-#### Guest Exposed IP VS Corporate Exposed IP
+#### Guest Public IP VS Corporate Public IP
 It is important to have a different exit public IP address for any guest regarding the internal network IP.
 
+#### Fake access point with internet access
+
+
 ## WEP
+- Wired Equivalent Privacy
+- Uses Rivest Cipher 4 (RC4) Stream cipher
+- **40** Bit or **104** Bit shared key + **24** Bit IV concatenated to the Shared Key
+  --> **64** or **128** Bit encryption key
+
+
 
 ## WPA
 
