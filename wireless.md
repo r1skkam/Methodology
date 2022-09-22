@@ -334,7 +334,9 @@ It is important to have a different exit public IP address for any guest regardi
 - **40** Bit or **104** Bit shared key + **24** Bit IV concatenated to the Shared Key
   --> **64** or **128** Bit encryption key
 
-<img src="./images/wep.png" width="500"/>
+<img src="./images/wep.jpg" width="700"/>
+
+<img src="./images/mpdu.png" width="700"/>
 
 ## WPA
 
