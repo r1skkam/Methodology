@@ -373,8 +373,21 @@ sudo aircrack-ng wep-01.ivs
 
 <img src="./images/wep_attack_arp_replay.png" width="800"/>
 
+##### Decrypt traffic
+Once the key is retrieve attacker can decrypt traffic for other devices.  
+
+- WireShark (GUI)
+- Airdecap-ng (CLI)
 
 ## WPA
+
+WPA/WPA2 use **PBKDF2** (Password Based Key Derivation Function).  
+
+PMK = PBKDF2(PassPhrase, SSID, ssidLen, 4096, 256)  
+--> 4096 = Number of iterations or times the passphrase is hashed  
+--> 256 = Intended Key Length of PSK in bits  
+
+
 
 ## WPA2
 ### WPA2-PSK
