@@ -61,6 +61,22 @@
       - [Key Reinstallation Attack (KRACK)](#key-reinstallation-attack-krack)
       - [FRAG Attack](#frag-attack)
     - [WPA2 Enterprise](#wpa2-enterprise)
+    - [EAP Authentication types](#eap-authentication-types)
+      - [EAP-MD5](#eap-md5)
+      - [EAP-PAP](#eap-pap)
+      - [EAP-GTC - Generic Token Card](#eap-gtc---generic-token-card)
+      - [EAP-CHAP](#eap-chap)
+      - [EAP-AKA](#eap-aka)
+      - [EAP-MSCHAPv2 - Microsoft Challenge Authentication Protocol version 2](#eap-mschapv2---microsoft-challenge-authentication-protocol-version-2)
+      - [LEAP - Light Weight EAP](#leap---light-weight-eap)
+      - [EAP-FAST - Flexible Authentication by Secure Tunneling](#eap-fast---flexible-authentication-by-secure-tunneling)
+      - [EAP-PWD](#eap-pwd)
+      - [EAP-SIM](#eap-sim)
+      - [EAP-NOOB](#eap-noob)
+    - [EAP Encapsulation](#eap-encapsulation)
+      - [EAP-PEAP](#eap-peap)
+      - [EAP-TLS - Transport Layer Security](#eap-tls---transport-layer-security)
+      - [EAP-TTLS - Tunneled TLS](#eap-ttls---tunneled-tls)
       - [WPA2-EAP - Password spray attack](#wpa2-eap---password-spray-attack)
       - [WPA2-EAP Evil Twin Attack](#wpa2-eap-evil-twin-attack)
       - [WPA2-EAP Relay](#wpa2-eap-relay)
@@ -79,6 +95,9 @@
   - [Other Attacks](#other-attacks)
       - [Fake Captive Portal](#fake-captive-portal)
       - [Fake Open Access Point](#fake-open-access-point)
+  - [To be checked - Validated](#to-be-checked---validated)
+      - [Open Authentication](#open-authentication-1)
+      - [Personal Authentication](#personal-authentication-1)
   - [Resources](#resources)
       - [WEP Cloaking](#wep-cloaking)
       - [4-Way Handshake](#4-way-handshake)
@@ -667,7 +686,52 @@ KRAKC attack or Key Reinstallation Attack
 - RFC : https://www.rfc-editor.org/rfc/rfc5247.html
 - 802.1X : EAP adopted by 802.11
 
-<img src="./images/eap.png" width="500"/>
+<img src="./images/eap.png" width="700"/>
+
+### EAP Authentication types
+#### EAP-MD5
+1. Radius send 16 bytes MD5 Challenge
+2. Client send MD5 hash of 
+   1. Responde ID
+   2. Password
+   3. Challenge
+
+--> Attacker can eavesdrop and sniff MD5 challenge.  
+- https://github.com/joswr1ght/eapmd5pass
+```
+./eapmd5pass -w dict -r eapmd5-sample.dump 
+```
+
+<img src="./images/eap-md5.png" width="700"/>
+
+#### EAP-PAP
+
+#### EAP-GTC - Generic Token Card
+
+#### EAP-CHAP
+
+#### EAP-AKA
+
+#### EAP-MSCHAPv2 - Microsoft Challenge Authentication Protocol version 2
+
+#### LEAP - Light Weight EAP
+
+#### EAP-FAST - Flexible Authentication by Secure Tunneling
+
+#### EAP-PWD
+
+#### EAP-SIM
+
+#### EAP-NOOB
+- https://datatracker.ietf.org/doc/draft-aura-eap-noob/?include_text=1
+
+### EAP Encapsulation
+#### EAP-PEAP
+
+#### EAP-TLS - Transport Layer Security
+
+#### EAP-TTLS - Tunneled TLS
+
 
 #### WPA2-EAP - Password spray attack
 - https://mikeallen.org/blog/2016-10-06-breaking-into-wpa-enterprise-networks-with-air-hammer/
@@ -802,6 +866,28 @@ The main goal is to create an interesting enough SSID in order for a victim to c
 - Monitor connection from clients
 - Directly attacked clients
 - MITM their traffic
+
+## To be checked - Validated
+#### Open Authentication
+- Captive portal bypass
+- Passive Sniffing
+- Evil Twin (MITM, Captive Portal (phishing), Hostile portal attack, OWE Transition downgrade)
+- Client isolation
+- Network segmentation
+- AD Authentication on Guest Portal
+- Self-Signed Certificate on Guest Portal
+- Azure AD Conditional Access Policy
+
+#### Personal Authentication
+- WEP attacks
+- WPD Pin attacks
+- PMKID attack
+- 4 way handshake sniffing
+- Deauthentication attack
+- KRACK Attack
+- FRAG Attack
+- WPA3-Transition Downgrade attack
+- WPA3-SAE timing or cache based password partitioning attacks
 
 ## Resources
 - https://sarwiki.informatik.hu-berlin.de/WPA3_Dragonfly_Handshake#:~:text=The%20major%20improvement%20of%20WPA3,traffic%20after%20a%20key%20breach.
