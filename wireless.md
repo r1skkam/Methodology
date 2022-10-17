@@ -968,6 +968,11 @@ asleap -C 06:9b:40:83:37:90:fd:41 -R 27:63:33:83:e7:25:98:5e:6d:4f:ed:73:b9:c5:1
 
 <img src="./images/peap_relay.png" width="700"/>
 
+This attack can fail if :
+- User doesn't accept the rogue certificate
+- Cryptographic binding (cryptobinding)
+  - When cryptobinding is enabled it creates a connection between the two tunnels to ensure that the client that is authenticating against the RADIUS server is the same client that created the initial TLS tunnel to the access point.
+
 Running hostapd-mana
 ```
 hostapd-mana hostapd.conf | grep 'SYCOPHANT\|MANA'
@@ -1027,6 +1032,7 @@ network={
   bssid_blacklist=00:14:22:01:23:45
 }
 ```
+
 
 ## WPA3
 The major improvement of WPA3 is a improved handshake (*Dragonfly-Handshake*) that makes it impossible for attackers to record the *4-Way Handshake* and launch a offline dictionary attack.  
