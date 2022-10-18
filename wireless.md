@@ -91,9 +91,9 @@
     - [WPA3-SAE](#wpa3-sae)
       - [DragonSlayer](#dragonslayer)
     - [Attacking WPA3](#attacking-wpa3)
-      - [WPA3 Downgrade](#wpa3-downgrade)
-      - [Security Group Downgrade](#security-group-downgrade)
       - [WPA3-Transition Downgrade](#wpa3-transition-downgrade)
+      - [Security Group Downgrade](#security-group-downgrade)
+      - [WPA3-Transition Downgrade](#wpa3-transition-downgrade-1)
       - [WPA3-SAE timing or cache password paritioning](#wpa3-sae-timing-or-cache-password-paritioning)
       - [Denial of Service](#denial-of-service)
       - [Dragonblood toolset](#dragonblood-toolset)
@@ -1138,7 +1138,22 @@ sudo rfkill unblock wifi
 
 ### Attacking WPA3
 
-#### WPA3 Downgrade
+#### WPA3-Transition Downgrade
+Allow non WPA3-SAE compliant device to connect using WPA2-PSK.  
+--> **Issue**: WPA2 clients and WPA3 clients will use the same secret passphrase.  
+
+2 techniques can be used:
+1. Capture WPA2-PSK handshake of connecting client and crack the handshake
+2. In case no clients use WPA2-PSK you can try to create fake WPA2-PSK and wait for client to connect, capture and crack WPA2 handshake
+  - Same SSID
+  - Same channel
+
+**Steps**:
+1. Identify WPA3 transition network
+- Check RSN element of beacon frame for both PSK and SAE presence
+
+<img src="./images/psksae.png" width="700"/>
+
 
 #### Security Group Downgrade
 
