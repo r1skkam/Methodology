@@ -36,6 +36,7 @@
   - [Guest Network](#guest-network)
       - [Guest network without password](#guest-network-without-password)
       - [MAC based authentication (Captive Portal Bypass)](#mac-based-authentication-captive-portal-bypass)
+      - [DNS Tunneling](#dns-tunneling)
       - [Network Isolation](#network-isolation)
       - [Client isolation/separation](#client-isolationseparation)
       - [Azure AD and conditional Access Policy](#azure-ad-and-conditional-access-policy)
@@ -77,30 +78,38 @@
       - [EAP-PEAP](#eap-peap)
       - [EAP-TLS - Transport Layer Security](#eap-tls---transport-layer-security)
       - [EAP-TTLS - Tunneled TLS](#eap-ttls---tunneled-tls)
+      - [Identity Privacy misconfiguration](#identity-privacy-misconfiguration)
       - [WPA2-EAP - Password spray attack](#wpa2-eap---password-spray-attack)
       - [WPA2-EAP Evil Twin Attack](#wpa2-eap-evil-twin-attack)
         - [Hostapd-WPE (Previously FreeRadius WPE)](#hostapd-wpe-previously-freeradius-wpe)
         - [Eaphammer](#eaphammer)
       - [WPA2-EAP Relay](#wpa2-eap-relay)
   - [WPA3](#wpa3)
+    - [OWE : Opportunistic Wireless Encryption](#owe--opportunistic-wireless-encryption)
       - [ZKP - Zero Knowledge Proof](#zkp---zero-knowledge-proof)
     - [Use WPA3-SAE authentication on Linux](#use-wpa3-sae-authentication-on-linux)
     - [WPA3-SAE](#wpa3-sae)
       - [DragonSlayer](#dragonslayer)
-      - [ATTACK : WPA2 Downgrade](#attack--wpa2-downgrade)
-      - [](#)
-      - [ATTACK : WPA3-Transition Downgrade](#attack--wpa3-transition-downgrade)
-      - [ATTACK : WPA3-SAE timing or cache password paritioning](#attack--wpa3-sae-timing-or-cache-password-paritioning)
+    - [Attacking WPA3](#attacking-wpa3)
+      - [WPA3 Downgrade](#wpa3-downgrade)
+      - [Security Group Downgrade](#security-group-downgrade)
+      - [WPA3-Transition Downgrade](#wpa3-transition-downgrade)
+      - [WPA3-SAE timing or cache password paritioning](#wpa3-sae-timing-or-cache-password-paritioning)
+      - [Denial of Service](#denial-of-service)
       - [Dragonblood toolset](#dragonblood-toolset)
     - [WPA3-EAP](#wpa3-eap)
   - [Wi-Fi Hacking Mind Map](#wi-fi-hacking-mind-map)
   - [Other Attacks](#other-attacks)
       - [Fake Captive Portal](#fake-captive-portal)
       - [Fake Open Access Point](#fake-open-access-point)
-  - [To be checked - Validated](#to-be-checked---validated)
+  - [To be checked - Validated during an engagement](#to-be-checked---validated-during-an-engagement)
+      - [General](#general)
       - [Open Authentication](#open-authentication-1)
       - [Personal Authentication](#personal-authentication-1)
+      - [Enterprise](#enterprise)
   - [Resources](#resources)
+      - [WPA3 - DragonFly](#wpa3---dragonfly)
+      - [Dragonblood: Analyzing the Dragonfly Handshake of WPA3 and EAP-pwd](#dragonblood-analyzing-the-dragonfly-handshake-of-wpa3-and-eap-pwd)
       - [WEP Cloaking](#wep-cloaking)
       - [4-Way Handshake](#4-way-handshake)
       - [PTK Derivation](#ptk-derivation)
@@ -108,10 +117,10 @@
       - [OpenWRT supported devices](#openwrt-supported-devices)
       - [OpenWRT Compatibles routers](#openwrt-compatibles-routers)
       - [SSID Oracle Attack on Undisclosed Wi-Fi Preferred Network Lists](#ssid-oracle-attack-on-undisclosed-wi-fi-preferred-network-lists)
-      - [Dragonblood: Analyzing the Dragonfly Handshake of WPA3 and EAP-pwd](#dragonblood-analyzing-the-dragonfly-handshake-of-wpa3-and-eap-pwd)
+      - [WEP attack fragmentation - chopchop](#wep-attack-fragmentation---chopchop)
   - [Tools](#tools)
-  - [Vulnerabilities for WLANs Networks](#vulnerabilities-for-wlans-networks)
   - [Defenses](#defenses)
+      - [KARMA Attack detection](#karma-attack-detection)
 
 ## Frequency / bands / Channels
 - 2.4 GHz : 11 Channels (14 total, e.g: In Japan)
@@ -186,7 +195,7 @@ WireShark filter: ```(wlan.fc.type == 0)&&(wlan.fc.type_subtype == 0x0c)```
     5. EAP-MSCHAP
     6. EAP-MSCHAPv2
     7. EAP-TLS
-    8. EAP-AKA/AKA'
+    8. EAP-AKA
     9. EAP-PWD
     10. EAP-SIM
     11. EAP-NOOB
@@ -438,11 +447,14 @@ macchanger -m D2:E9:6A:D3:B3:51 wlan1
 ifconfig wlan1 up
 ```
 
-#### Network Isolation
+#### DNS Tunneling
+- [DNS tunneling for Internet Access](https://github.com/ricardojoserf/wifi-pentesting-guide#213-bypass-2-dns-tunnelling)
 
+#### Network Isolation
 - Validate the network isolation/segmentation between guest wi-fi, captive portal based authentication wi-fi and internal corporate network or Wi-Fi corporate network.
 
 #### Client isolation/separation
+- Validate the isolation between clients connected on the Open Network.
 
 #### Azure AD and conditional Access Policy
 Sometimes it is possible to bypass conditonal access policy for example regarding *MFA* which can be based on *Source IP Adress* or *Geolocation* from the *Guest Network*.  
@@ -876,6 +888,13 @@ Inner authentication:
 - MSCHAP
 - MSCHAPV2
 
+#### Identity Privacy misconfiguration
+- Absence of Identity Privacy
+During 802.1x EAP negotiations, client send its identity to the authenticator before engaging in the RADIUS authentication process.  
+--> EAPOL frames within the first authentication phase are not encrypted  
+--> An attacker can see the AD usernames in plaintext  
+
+
 #### WPA2-EAP - Password spray attack
 - https://mikeallen.org/blog/2016-10-06-breaking-into-wpa-enterprise-networks-with-air-hammer/
 
@@ -1050,6 +1069,14 @@ WPA3 also introduces *perfect forward secrecy* which prevents attackers from dec
 Additionally, WPA3 supports *Protected Management Frames* (PMF) which makes it impossible to launch *de-authentication attacks*.  
 ---> WPA2 already supports this, therefore this is not a novelty of WPA3. However with WPA, PMF are included from the start in the certification program.
 
+
+<img src="./images/wpa2-wpa3-comparison.png" width="700"/>
+
+### OWE : Opportunistic Wireless Encryption
+OWE authentication makes Wi-Fi network access as convenient as that in open authentication mode, allowing users to access the Wi-Fi network without entering the password. In OWE authentication mode, a STA and an AP perform a Diffie-Hellman key exchange to encrypt data transmitted between the STA and Wi-Fi network, thereby protecting user data security.  
+
+<img src="./images/owe.png" width="500"/>
+
 #### ZKP - Zero Knowledge Proof  
 
 Within WPA3 the important improvment come from the new handshake which does not transmit any secrets or credentials.  
@@ -1062,7 +1089,7 @@ SAE handshake goal is to make sure both handshake participants can be sure that 
 --> Mutual authentication (both parties prove that they have knowledge over the same password.)
 
 ### Use WPA3-SAE authentication on Linux
-https://askubuntu.com/questions/1290589/how-to-use-wpa3-with-ubuntu-20-04
+- https://askubuntu.com/questions/1290589/how-to-use-wpa3-with-ubuntu-20-04
 
 ### WPA3-SAE
 
@@ -1109,20 +1136,23 @@ Unblock wifi
 sudo rfkill unblock wifi
 ```
 
-#### ATTACK : WPA2 Downgrade
+### Attacking WPA3
 
-#### 
+#### WPA3 Downgrade
 
-#### ATTACK : WPA3-Transition Downgrade
+#### Security Group Downgrade
 
-#### ATTACK : WPA3-SAE timing or cache password paritioning
+#### WPA3-Transition Downgrade
+
+#### WPA3-SAE timing or cache password paritioning
+
+#### Denial of Service
 
 #### Dragonblood toolset
 Tools used for attacks against dragonfly key exchange. Targeting WPA3-SAE and EAP-PWD.
 <https://github.com/vanhoefm/dragonforce>
 <https://github.com/vanhoefm/dragondrain-and-time>
 <https://github.com/vanhoefm/dragonslayer
-
 
 
 ### WPA3-EAP
@@ -1145,9 +1175,13 @@ The main goal is to create an interesting enough SSID in order for a victim to c
 - Directly attacked clients
 - MITM their traffic
 
-## To be checked - Validated
+## To be checked - Validated during an engagement
+#### General
+- Check for the presence of rogue or undocumented Access Point
+
 #### Open Authentication
 - Captive portal bypass
+- DNS tunneling
 - Passive Sniffing
 - Evil Twin (MITM, Captive Portal (phishing), Hostile portal attack, OWE Transition downgrade)
 - Client isolation
@@ -1155,10 +1189,12 @@ The main goal is to create an interesting enough SSID in order for a victim to c
 - AD Authentication on Guest Portal
 - Self-Signed Certificate on Guest Portal
 - Azure AD Conditional Access Policy
+- Active Directory Authentication on Guest Portal
 
 #### Personal Authentication
 - WEP attacks
-- WPD Pin attacks
+- 
+- WPS Pin attacks
 - PMKID attack
 - 4 way handshake sniffing
 - Deauthentication attack
@@ -1167,10 +1203,19 @@ The main goal is to create an interesting enough SSID in order for a victim to c
 - WPA3-Transition Downgrade attack
 - WPA3-SAE timing or cache based password partitioning attacks
 
+#### Enterprise
+- Evil twin attack / Fake AP
+- Password Spray
+- Absence of Identity Privacy
+
 ## Resources
+
+#### WPA3 - DragonFly
+- https://sarwiki.informatik.hu-berlin.de/WPA3_Dragonfly_Handshake#:~:text=The%20major%20improvement%20of%20WPA3,traffic%20after%20a%20key%20breach.
 - https://sarwiki.informatik.hu-berlin.de/WPA3_Dragonfly_Handshake#:~:text=The%20major%20improvement%20of%20WPA3,traffic%20after%20a%20key%20breach.
 
-- https://sarwiki.informatik.hu-berlin.de/WPA3_Dragonfly_Handshake#:~:text=The%20major%20improvement%20of%20WPA3,traffic%20after%20a%20key%20breach.
+#### Dragonblood: Analyzing the Dragonfly Handshake of WPA3 and EAP-pwd
+- https://papers.mathyvanhoef.com/dragonblood.pdf
 
 #### WEP Cloaking
 - https://media.defcon.org/DEF%20CON%2015/DEF%20CON%2015%20presentations/DEF%20CON%2015%20-%20gupta_and_ramachandran-WP.pdf
@@ -1195,9 +1240,8 @@ The main goal is to create an interesting enough SSID in order for a victim to c
 #### SSID Oracle Attack on Undisclosed Wi-Fi Preferred Network Lists
 - https://www.hindawi.com/journals/wcmc/2018/5153265/
 
-#### Dragonblood: Analyzing the Dragonfly Handshake of WPA3 and EAP-pwd
-- https://papers.mathyvanhoef.com/dragonblood.pdf
-
+#### WEP attack fragmentation - chopchop
+- https://github.com/DominikStyp/WEP-attack
 
 ## Tools
 - https://github.com/derv82/wifite2
@@ -1214,21 +1258,9 @@ The main goal is to create an interesting enough SSID in order for a victim to c
 - https://github.com/vanhoefm/fragattacks
 - https://github.com/vanhoefm/krackattacks-scripts
 
-
-To do course
-https://github.com/topics/wireless-penetration-testing
-https://github.com/Offensive-Wireless/Wireless-Penetration-Testing
-https://gist.github.com/dogrocker/86881d2403fee138487054da82d5dc2e
-https://github.com/ivan-sincek/wifi-penetration-testing-cheat-sheet#wpawpa2-handshake
-https://github.com/ricardojoserf/wifi-pentesting-guide
-
-
-## Vulnerabilities for WLANs Networks
-
 ## Defenses
-https://github.com/SYWorks/waidps
-http://syworks.blogspot.com/2014/04/waidps-wireless-auditing-intrusion.html
+- https://github.com/SYWorks/waidps
+- http://syworks.blogspot.com/2014/04/waidps-wireless-auditing-intrusion.html
 
-
-KARMA Attack detection
-https://github.com/AlexLynd/WiFi-Pineapple-Detector
+#### KARMA Attack detection
+- https://github.com/AlexLynd/WiFi-Pineapple-Detector
