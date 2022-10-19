@@ -630,7 +630,7 @@ gcc cap2hccapx.c -o cap2hccapx.bin
 
 Dictionnary attack using hashcat
 ```
-hashcat.exe -m 2500 handshake.hccapx wordlists/rockyou.txt
+hashcat.exe -m 22000 handshake.hccapx wordlists/rockyou.txt
 ```
 
 #### Pre Computed PMK
