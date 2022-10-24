@@ -2,7 +2,7 @@
 
 Offensive Security Testing methodologies for security professionals, penetration tester, red teamer.
 
---> Feel free to send **pull request**
+&rarr; Feel free to send **pull request**
 
 #### 1- Internal Network Penetration Testing 
 
