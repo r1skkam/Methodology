@@ -16,12 +16,14 @@ Offensive Security Testing methodologies for security professionals, penetration
 
 #### 6- IoT Penetration Testing
 
-#### 7- PowerShell 4 attackers
+#### 7- PowerShell 4 Attackers
 
-#### 8- WMI 4 attackers
+#### 8- WMI 4 Attackers
 
 #### 9- LPE - Windows Edition
 
 #### 10- LPE - Linux Edition
 
 #### 11- Containerized environment Security Assessment
+
+##### 12- Proxying & Tunnneling techniques
