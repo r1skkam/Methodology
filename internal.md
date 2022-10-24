@@ -218,6 +218,16 @@ Checking share access rights with domain user
 crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com --shares
 ```
 
+Complete review of network share permissions.  
+--> [Powerhuntshare](https://github.com/NetSPI/Powerhuntshares) can be run from domain or non domain joined machine.
+
+- https://www.netspi.com/blog/technical/network-penetration-testing/network-share-permissions-powerhuntshares/
+
+Running Powerhuntshare from domain joined machine.
+```
+Invoke-HuntSMBShares -Threads 100 -OutputDirectory c:\temp\test
+```
+
 ### Print spooler service
 Checking if print spooler service is enable using impacket RPCDUMP or crackmapexec (used RPCDUMP but can be used to scan on large range)
 ```
@@ -360,7 +370,7 @@ Get-SQLInstanceLocal -Verbose
 ```
 
 ### Relay attacks
-<img src="./images/smb_relay.png" width="250"/>
+<img src="./images/smb_relay.png" width="700"/>
 
 ### Drop the MIC CVE-2019-1040
 - https://securityboulevard.com/2019/06/drop-the-mic-cve-2019-1040/
@@ -433,7 +443,7 @@ findstr /S /I cpassword \\<FQDN>\sysvol\<FQDN>\policies\*.xml
 ```
 
 The PowerSploit function Get-GPPPassword is most useful for Group Policy Preference exploitation.  
-- ![Get-GPPPassword.ps1](https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Get-GPPPassword.ps1)
+- [Get-GPPPassword.ps1](https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Get-GPPPassword.ps1)
 
 *From Linux client*  
 
@@ -578,7 +588,7 @@ Various tools exist which can create a machine account from the command line or 
 - The samAccountName can be changed to anything that doesn’t match a samAccountName already present in a domain.
 --> Interestingly, the samAccountName can even end in a space which permits mimicking any existing domain account. You can strip the $ character also.
 
-<img src="./images/MAQSAMAccoutnName.png" width="250"/>
+<img src="./images/MAQSAMAccoutnName.png" width="700"/>
 
 ### Protected Users
 Well-known SID/RID: ```S-1-5-21-<domain>-525```
@@ -642,6 +652,14 @@ crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M petitpotam
 - DHCPv6 is constantly broadcasting to the entire network.
 
 - https://blog.fox-it.com/2018/01/11/mitm6-compromising-ipv4-networks-via-ipv6/
+
+# Kerberos attacks
+### AS-Rep Roasting
+
+### Kerberoasting
+
+### MS14-066
+
 
 
 # Active Directory exploitation
@@ -1110,8 +1128,6 @@ Tools:
 - [SyncAppvPublishingServer]()
 
 
-
-To use for the course
 
 - https://h4ms1k.github.io/Red_Team_Active_Directory/#
 - https://anishmi123.gitbooks.io/oscp-my-journey/content/active-directory/ad-attacks.html
