@@ -1,4 +1,162 @@
-# Recon
+# Internal Network Penetration Testing
+
+- [Internal Network Penetration Testing](#internal-network-penetration-testing)
+  - [Recon](#recon)
+  - [Unauthenticated enumeration](#unauthenticated-enumeration)
+  - [First foothold](#first-foothold)
+    - [NAC Bypass (802.1x)](#nac-bypass-8021x)
+      - [802.1x EAP-TLS](#8021x-eap-tls)
+      - [802.1x EAP-PEAP](#8021x-eap-peap)
+      - [Misc techniques](#misc-techniques)
+    - [Username == password](#username--password)
+    - [SMB Version 1](#smb-version-1)
+    - [SMB Signing](#smb-signing)
+    - [Unsupported operating systems](#unsupported-operating-systems)
+    - [Checking NLA and other RDP issue](#checking-nla-and-other-rdp-issue)
+    - [RPC / SMB null enumeration](#rpc--smb-null-enumeration)
+    - [AS-Rep Roasting](#as-rep-roasting)
+  - [Authenticated enumeration](#authenticated-enumeration)
+    - [Domain policy using PowerView](#domain-policy-using-powerview)
+    - [Getting password policy](#getting-password-policy)
+    - [MISC Enumeration commands](#misc-enumeration-commands)
+    - [Get Net session](#get-net-session)
+    - [Active Directory user and computer account description](#active-directory-user-and-computer-account-description)
+    - [Resetting expired passwords remotely](#resetting-expired-passwords-remotely)
+    - [PASSWD_NOT_REQD](#passwd_not_reqd)
+    - [Machine Account Quota](#machine-account-quota)
+    - [LAPS / LAPS bypass](#laps--laps-bypass)
+    - [Admin Count](#admin-count)
+    - [Checking GPP passwords](#checking-gpp-passwords)
+    - [Checking GPP autologin](#checking-gpp-autologin)
+    - [Checking share](#checking-share)
+    - [Print spooler service](#print-spooler-service)
+    - [Local admin brute force](#local-admin-brute-force)
+    - [Pywerview recon tool](#pywerview-recon-tool)
+    - [Recon/Enumeration using BloodHound](#reconenumeration-using-bloodhound)
+    - [Expanding BloodHound](#expanding-bloodhound)
+  - [Exploitation](#exploitation)
+    - [Identifying Quick Wins](#identifying-quick-wins)
+    - [adPeas](#adpeas)
+    - [Password spray](#password-spray)
+    - [LNK Files](#lnk-files)
+    - [RPC Misc](#rpc-misc)
+        - [AD user password modification using rpcclient](#ad-user-password-modification-using-rpcclient)
+        - [RPC password spraying](#rpc-password-spraying)
+    - [Kerberoasting](#kerberoasting)
+    - [Abusing Vulnerable GPO](#abusing-vulnerable-gpo)
+    - [Abusing MS-SQL Service](#abusing-ms-sql-service)
+    - [Relay attacks](#relay-attacks)
+    - [Drop the MIC CVE-2019-1040](#drop-the-mic-cve-2019-1040)
+    - [Exploiting ACL over GPO](#exploiting-acl-over-gpo)
+    - [Insecure LDAP: LDAPS / Signing / Channel Binding](#insecure-ldap-ldaps--signing--channel-binding)
+      - [LDAPS](#ldaps)
+      - [LDAP Signing disable](#ldap-signing-disable)
+      - [LDAP Channel Binding](#ldap-channel-binding)
+    - [Unencrypted Protocols in use](#unencrypted-protocols-in-use)
+      - [SMTP](#smtp)
+      - [HTTP](#http)
+      - [Telnet](#telnet)
+      - [FTP](#ftp)
+        - [LDAP](#ldap)
+    - [SYSVOL / GPP](#sysvol--gpp)
+        - [Metasploit Module](#metasploit-module)
+        - [Metasploit Post-Module : Once you get shell on windows host](#metasploit-post-module--once-you-get-shell-on-windows-host)
+        - [CrackMapExec Module 1 : gpp_password](#crackmapexec-module-1--gpp_password)
+        - [CrackMapExec Module 2: gpp_autologin](#crackmapexec-module-2-gpp_autologin)
+        - [Impacket Module](#impacket-module)
+        - [Decrypt the found password manually](#decrypt-the-found-password-manually)
+    - [LLMNR / NBT-NS / mDNS](#llmnr--nbt-ns--mdns)
+      - [Responder + ntlmrelayx](#responder--ntlmrelayx)
+    - [WPAD](#wpad)
+    - [WSUS](#wsus)
+    - [ACL / DACL Exploitation](#acl--dacl-exploitation)
+        - [ForceChangePassword](#forcechangepassword)
+    - [MachineAccountQuota (MAQ)](#machineaccountquota-maq)
+    - [Protected Users](#protected-users)
+    - [PAC](#pac)
+    - [ProxyLogon](#proxylogon)
+    - [ProxyShell](#proxyshell)
+    - [ZeroLogon](#zerologon)
+    - [PrintNightmare](#printnightmare)
+      - [SpoolSample](#spoolsample)
+      - [ShadowCoerce](#shadowcoerce)
+      - [DFSCoerce](#dfscoerce)
+      - [MultiCoerce](#multicoerce)
+    - [Petitpotam](#petitpotam)
+    - [samAccountName spoofing](#samaccountname-spoofing)
+    - [MiTM - IPv6 + NTLMRelayx](#mitm---ipv6--ntlmrelayx)
+  - [Kerberos attacks](#kerberos-attacks)
+    - [AS-Rep Roasting](#as-rep-roasting-1)
+    - [Kerberoasting](#kerberoasting-1)
+    - [MS14-066](#ms14-066)
+  - [Active Directory exploitation](#active-directory-exploitation)
+    - [ZeroLogon](#zerologon-1)
+    - [Exploiting ADCS](#exploiting-adcs)
+    - [ADCS](#adcs)
+    - [ADCS WebDav + NTLM relay to LDAP](#adcs-webdav--ntlm-relay-to-ldap)
+    - [Exploiting machine accounts (WS01$)](#exploiting-machine-accounts-ws01)
+    - [Over-Pass-The-hash](#over-pass-the-hash)
+    - [Pass The ticket](#pass-the-ticket)
+    - [Silver ticket](#silver-ticket)
+    - [Kerberos Delegation](#kerberos-delegation)
+      - [Exploiting RBCD : MachineAccountQuota](#exploiting-rbcd--machineaccountquota)
+      - [Exploiting RBCD : WRITE Priv](#exploiting-rbcd--write-priv)
+    - [From On-Premise to Azure](#from-on-premise-to-azure)
+    - [Domain Trust](#domain-trust)
+    - [Forest Trust](#forest-trust)
+  - [Lateral movement](#lateral-movement)
+  - [Persistence](#persistence)
+    - [Primary Group ID](#primary-group-id)
+    - [Dropping SPN on admin accounts](#dropping-spn-on-admin-accounts)
+      - [Persistence in AD environment](#persistence-in-ad-environment)
+      - [Machine/Computer accounts](#machinecomputer-accounts)
+      - [Machine/Computer accounts 2](#machinecomputer-accounts-2)
+  - [Post-Exploitation](#post-exploitation)
+    - [Computer accounts privesc](#computer-accounts-privesc)
+    - [Active Directory NTDS : Clear Text passwords (Reversible encryption)](#active-directory-ntds--clear-text-passwords-reversible-encryption)
+    - [Accessing LSASS secrets](#accessing-lsass-secrets)
+        - [Lsassy](#lsassy)
+  - [Misc : AD Audit](#misc--ad-audit)
+      - [WDigest](#wdigest)
+      - [Passwords stored in LSA (LSA Storage)](#passwords-stored-in-lsa-lsa-storage)
+      - [Abusing leaked handles to dump LSASS memory](#abusing-leaked-handles-to-dump-lsass-memory)
+      - [LM password storage](#lm-password-storage)
+      - [Storing passwords using reversible encryption](#storing-passwords-using-reversible-encryption)
+      - [Inactive domain accounts](#inactive-domain-accounts)
+      - [Privileged users with password reset overdue](#privileged-users-with-password-reset-overdue)
+      - [Users with non-expiring passwords](#users-with-non-expiring-passwords)
+      - [Service account within privileged groups](#service-account-within-privileged-groups)
+      - [AdminCount on regular users](#admincount-on-regular-users)
+  - [Data-Exfiltration](#data-exfiltration)
+  - [Cracking Hashes](#cracking-hashes)
+      - [LM hash](#lm-hash)
+      - [NTLM hash](#ntlm-hash)
+      - [Net-NTLMv1](#net-ntlmv1)
+      - [Net-NTLMv2](#net-ntlmv2)
+      - [AS-Rep Roast response (Kerberos 5 AS-REP etype 23)](#as-rep-roast-response-kerberos-5-as-rep-etype-23)
+      - [Kerberoast (Service Ticket)](#kerberoast-service-ticket)
+  - [Reporting / Collaborative](#reporting--collaborative)
+    - [Password audit reporting](#password-audit-reporting)
+  - [Defenses](#defenses)
+    - [Windows Defender Antivirus](#windows-defender-antivirus)
+    - [Windows Defender Advanced Threat Protection (ATP)](#windows-defender-advanced-threat-protection-atp)
+    - [Windows Defender : Exploit Guard](#windows-defender--exploit-guard)
+    - [Windows Defender : Application Guard](#windows-defender--application-guard)
+    - [Windows Defender : Device Guard](#windows-defender--device-guard)
+    - [Windows Defender : Credential Guard](#windows-defender--credential-guard)
+  - [Resources](#resources)
+      - [Red Team Cheatsheet](#red-team-cheatsheet)
+      - [PetitPotam and ADCS](#petitpotam-and-adcs)
+      - [Active Directory Exploitation cheatsheet](#active-directory-exploitation-cheatsheet)
+      - [Attacking Active Directory](#attacking-active-directory)
+      - [Kerberos Delegation](#kerberos-delegation-1)
+      - [Exceptional blog posts regarding Windows Authentication/Credentials/RDP](#exceptional-blog-posts-regarding-windows-authenticationcredentialsrdp)
+      - [Windows Logon Types](#windows-logon-types)
+      - [Windows Name Pipes](#windows-name-pipes)
+      - [COM / DCOM](#com--dcom)
+      - [PowerShell Without PowerShell](#powershell-without-powershell)
+
+## Recon
 
 ## Unauthenticated enumeration
 
@@ -31,7 +189,7 @@ Copy **dsquery.dll** from *C:\Windows\System32*
 rundll32 dsquery.dll,OpenqueryWindow
 ```
 
-# First foothold
+## First foothold
 
 ### NAC Bypass (802.1x)
 NAC (Network Access Control) acts as a kind of a gatekeeper to the local network infrastructure. Its usually works with whitelists, blacklists, authentication requirements or host scanning to restrict access and keep unwanted devices out of the network.  
@@ -107,7 +265,7 @@ hashcat -m 18200 'asrep-roast.hashes' -a 0 ./wordlists/rockyou.txt
 ```
 
 
-# Authenticated enumeration
+## Authenticated enumeration
 
 ```
 nltest /domain_trusts
@@ -123,6 +281,23 @@ nltest /whowill:<domain> <user>
 ```
 Get-DomainPolicy
 (Get-DomainPolicy)."System Access"
+```
+
+### Getting password policy
+Get domain password policy using **ActiveDirectory** module. ([RSAT](https://4sysops.com/wiki/how-to-install-the-powershell-active-directory-module/))
+```
+Get-WindowsCapability -Name RSAT* -Online | Select-Object -Property DisplayName, State
+Get-ADDefaultDomainPasswordPolicy
+```
+
+Get all domain fined grained password policy
+```
+Get-ADFinedGrainedPasswordPolicy -Filter *
+```
+
+Get password policy for specific user
+```
+Get-ADUserResultantPasswordPolicy -Identity john.doe
 ```
 
 ### MISC Enumeration commands
@@ -259,20 +434,15 @@ Invoke-BloodHound -CollectionMethod All
 - https://www.trustedsec.com/blog/expanding-the-hound-introducing-plaintext-field-to-compromised-accounts/
 - https://neo4j.com/docs/api/python-driver/current/
 
-### Domain Enumeration - Defense
-- https://stealthbits.com/blog/making-internal-reconnaissance-harder-using-netcease-and-samri1o/
-
-- [NetCease](./Tools/NetCease.ps1) 
-This script changes permissions on the *NetSessionEnum()* method by removing permission for *Authenticated Users Group*.
-
-- RestrictRemoteSAM registry key
-Microsoft Introduced protections for querying the Remote SAM with Windows 10 and in 2017 introduced updates for previous operating systems down to Windows 7 and Server 2008 R2 using the RestrictRemoteSAM registry key.
-
-- SAMRi10
-PowerShell (PS) script which alters remote SAM access default permissions on Windows 10 & Windows Server 2016. This hardening process prevents attackers from easily getting some valuable recon information to move laterally within their victim’s network.
 
 
-# Exploitation
+
+
+
+
+
+
+## Exploitation
 
 ### Identifying Quick Wins
 - Tomcat
@@ -653,7 +823,7 @@ crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M petitpotam
 
 - https://blog.fox-it.com/2018/01/11/mitm6-compromising-ipv4-networks-via-ipv6/
 
-# Kerberos attacks
+## Kerberos attacks
 ### AS-Rep Roasting
 
 ### Kerberoasting
@@ -662,7 +832,11 @@ crackmapexec smb 10.10.0.10 -u jdoe -p Pass1234 -d company.com -M petitpotam
 
 
 
-# Active Directory exploitation
+
+
+
+
+## Active Directory exploitation
 
 ### ZeroLogon
 
@@ -771,14 +945,26 @@ PS> Get-ADComputer -Filter {TrustedForDelegation -eq $True}
 ### Forest Trust
 - https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc755700(v=ws.10)?redirectedfrom=MSDN
 
-# Lateral movement
+
+
+
+
+
+
+## Lateral movement
 
 smbclient authentication using NTLM hash
 ```
 smbclient //192.168.0.10/C$ -U corp.company.com/jdoe --pw-nt-hash <NT hash>
 ```
 
-# Persistence
+
+
+
+
+
+
+## Persistence
 
 ### Primary Group ID
 
@@ -883,7 +1069,12 @@ $VerbosePreference = "Continue"
 }
 ```
 
-# Post-Exploitation
+
+
+
+
+
+## Post-Exploitation
 
 ### Computer accounts privesc
 > For example, if an admin server is joined to a group with backup rights on Domain Controllers, all an attacker needs to do is compromise an admin account with rights to that admin server and then get System rights on that admin server to compromise the domain.
@@ -916,6 +1107,13 @@ Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl
 ```
 lsassy -d company.local -u jdoe -p Pass1234 192.168.1.0/24
 ```
+
+
+
+
+
+
+
 
 ## Misc : AD Audit
 
@@ -1043,15 +1241,33 @@ net group "Enterprise Admins" /domain
 jq -r '.[].attributes | select(.adminCount == [1]) | .sAMAccountName[]' domain_users.json
 ```
 
+
+
+
+
+
+
+
+
 ## Data-Exfiltration
 Data exfiltration and DLP (Data Loss Prevention) bypass.
 
-## Recovering secrets / Cracking Hashes
-### jeanPass.py
-- 
 
-### Hashcat
 
+
+
+
+
+
+
+
+## Cracking Hashes
+#### LM hash
+```
+hashcat -m 3000 -a 0 lm_hashes.txt ../../wordlists/rockyou_2021.txt
+```
+
+#### NTLM hash
 Hashcat mask attack
 - https://hashcat.net/wiki/doku.php?id=mask_attack
 ```
@@ -1065,17 +1281,85 @@ hashcat -m 1000 -a 0 --username ntds.dit.ntds ../../wordlists/rockyou_2021.txt -
 
 Hashcat wordlist cracking
 ```
+hashcat -m 1000 -a 0 --username ntds.dit.ntds ../../wordlists/rockyou_2021.txt
+```
+
+#### Net-NTLMv1
+```
+hashcat -m 5500 -a 0 ntlmv1_hashes.txt ../../wordlists/rockyou_2021.txt 
+```
+
+#### Net-NTLMv2
+```
+hashcat -m 5600 -a 0 ntlmv2_hashes.txt ../../wordlists/rockyou_2021.txt 
+```
+
+#### AS-Rep Roast response (Kerberos 5 AS-REP etype 23)
+```
+hashcat -m 18200 -a 0 AS_REP_responses_hashes.txt ../../wordlists/rockyou_2021.txt
+```
+
+#### Kerberoast (Service Ticket)
+```
+hashcat -m 13100 -a 0 TGS_hashes.txt ../../wordlists/rockyou_2021.txt
 ```
 
 
-# Reporting / Collaborative
+
+
+
+
+
+
+
+
+
+
+## Reporting / Collaborative
 ### Password audit reporting
 - https://github.com/clr2of8/DPAT
 ```
-
+dpat.py -n ntds.dit -c hashcat.potfile -g "Domain Admins.txt" "Enterprise Admins.txt"
 ```
 
 <img src="./images/dpat.png" width="250"/>
+
+
+
+
+
+
+
+
+
+
+
+
+## Defenses
+### Windows Defender Antivirus
+
+### Windows Defender Advanced Threat Protection (ATP)
+
+### Windows Defender : Exploit Guard
+
+### Windows Defender : Application Guard
+
+### Windows Defender : Device Guard
+
+### Windows Defender : Credential Guard
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Resources
 
