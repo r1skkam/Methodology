@@ -1,11 +1,36 @@
-# WMI for offensive task
+# WMI 4 Attackers
+
+- [WMI 4 Attackers](#wmi-4-attackers)
+  - [WMI 101](#wmi-101)
+  - [WMI Components](#wmi-components)
+    - [Manaed Object Format (MOF) files](#manaed-object-format-mof-files)
+    - [Providers](#providers)
+    - [Managed Objects](#managed-objects)
+    - [Namespaces](#namespaces)
+    - [Repository](#repository)
+    - [Consumers](#consumers)
+  - [WMI with PowerShell](#wmi-with-powershell)
+  - [WMI host recon](#wmi-host-recon)
+  - [WMI Active Directory Recon](#wmi-active-directory-recon)
+  - [WMI Methods](#wmi-methods)
+  - [Association classes](#association-classes)
+  - [WMI Console (WMIC)](#wmi-console-wmic)
+  - [Remote WMI](#remote-wmi)
+  - [Registry key manipulation](#registry-key-manipulation)
+  - [Recon and information gathering](#recon-and-information-gathering)
+  - [Resources](#resources)
+      - [BlackHat US 2015: Abusing WMI to built a persistent, asyncronous, and fileless backdoor.](#blackhat-us-2015-abusing-wmi-to-built-a-persistent-asyncronous-and-fileless-backdoor)
+      - [WMI for Script Kiddies](#wmi-for-script-kiddies)
+      - [Usefull WMIC queries for host and domain enumeration](#usefull-wmic-queries-for-host-and-domain-enumeration)
+      - [Red Team handbook WMI command](#red-team-handbook-wmi-command)
+      - [NoLimitSecu French Podcast dedicated to WMI](#nolimitsecu-french-podcast-dedicated-to-wmi)
 
 - Lateral movement
 - Information gathering
 - System modification and process execution
 - Backdoors and persistence
 
-# WMI 101
+## WMI 101
 
 *WMI = Windows Management Instrumentation*  
 - https://docs.microsoft.com/en-us/windows/win32/wmisdk/wmi-architecture
@@ -259,7 +284,7 @@ Detect virtualization
 Get-WmiObject Win32_BIOS -Filter 'SerialNumber LIKE "%VMware%"'
 ```
 
-Finding interesting files: Queries all data files on the *C:* thag hae a name containing *password*.
+Finding interesting files: Queries all data files on the *C:* that have a name containing *password*.
 ```
 wmic DATAFILE where "drive='C:' AND Name like '%password%'" GET Name,readable,size /VALUE
 ```
@@ -421,16 +446,22 @@ Usefull scripts:
 - [Invoke-WmiCommand.ps1](https://github.com/PowerShellMafia/PowerSploit/blob/master/CodeExecution/Invoke-WmiCommand.ps1)
 - [Invoke-SessionGopher.ps1](https://github.com/EmpireProject/Empire/blob/master/data/module_source/credentials/Invoke-SessionGopher.ps1)
 
-# Resources
-- BlackHat US 2015: Abusing WMI to built a persistent, asyncronous, and fileless backdoor.  
-https://www.blackhat.com/docs/us-15/materials/us-15-Graeber-Abusing-Windows-Management-Instrumentation-WMI-To-Build-A-Persistent%20Asynchronous-And-Fileless-Backdoor-wp.pdf
 
-- WMI for Script Kiddies  
-https://www.trustedsec.com/blog/wmi-for-script-kiddies/
+## Recon and information gathering
 
-- Usefull WMIC queries for host and domain enumeration  
-https://gist.github.com/xorrior/67ee741af08cb1fc86511047550cdaf4
 
-- Red Team handbook WMI command  
-https://kwcsec.gitbook.io/the-red-team-handbook/techniques/enumeration/recon-commands/wmic-commands
+## Resources
+#### BlackHat US 2015: Abusing WMI to built a persistent, asyncronous, and fileless backdoor.  
+- https://www.blackhat.com/docs/us-15/materials/us-15-Graeber-Abusing-Windows-Management-Instrumentation-WMI-To-Build-A-Persistent%20Asynchronous-And-Fileless-Backdoor-wp.pdf
 
+#### WMI for Script Kiddies  
+- https://www.trustedsec.com/blog/wmi-for-script-kiddies/
+
+#### Usefull WMIC queries for host and domain enumeration  
+- https://gist.github.com/xorrior/67ee741af08cb1fc86511047550cdaf4
+
+#### Red Team handbook WMI command  
+- https://kwcsec.gitbook.io/the-red-team-handbook/techniques/enumeration/recon-commands/wmic-commands
+
+#### NoLimitSecu French Podcast dedicated to WMI
+- https://www.nolimitsecu.fr/wmi/
